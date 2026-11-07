@@ -45,6 +45,11 @@
   html {
     color-scheme: dark;
   }
+  /* Thin, dark scrollbars everywhere (Windows otherwise draws wide light ones). */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(237 237 237 / 0.16) transparent;
+  }
   body {
     @apply bg-page text-fg font-sans antialiased;
     font-feature-settings: "ss01";

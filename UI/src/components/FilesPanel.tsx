@@ -145,34 +145,35 @@ function History({ items }: { items: HistoryEntry[] }) {
         </span>
       }
     >
-      <div className="-mx-5 overflow-x-auto px-5">
-        <table className="w-full min-w-[560px] text-left text-sm">
+      {/* Columns drop out as the card narrows instead of scrolling sideways. */}
+      <div className="@container">
+        <table className="w-full table-fixed text-left text-sm">
           <thead>
             <tr className="h-9 border-t border-b border-line text-xs text-fg-3">
               <th className="font-normal">File</th>
-              <th className="text-right font-normal">Size</th>
-              <th className="pl-6 font-normal">Direction</th>
-              <th className="text-right font-normal">Speed</th>
-              <th className="text-right font-normal">Time</th>
-              <th className="pl-6 font-normal">Status</th>
+              <th className="w-20 text-right font-normal">Size</th>
+              <th className="w-28 pl-6 font-normal">Direction</th>
+              <th className="hidden w-24 text-right font-normal @xl:table-cell">Speed</th>
+              <th className="hidden w-16 text-right font-normal @xl:table-cell">Time</th>
+              <th className="hidden w-24 pl-6 font-normal @lg:table-cell">Status</th>
             </tr>
           </thead>
           <tbody>
             {items.map((h) => (
               <tr key={h.id} className="h-11 border-b border-line last:border-b-0">
-                <td className="max-w-[220px] truncate pr-4 text-fg" title={h.fileName}>
+                <td className="truncate pr-4 text-fg" title={h.fileName}>
                   {h.fileName}
                 </td>
                 <td className="text-right font-mono text-fg-2 tabular">{fmtBytes(h.fileSize)}</td>
-                <td className="pl-6 text-fg-2">
+                <td className={cx("pl-6", h.ok ? "text-fg-2" : "text-bad @lg:text-fg-2")}>
                   <span className="inline-flex items-center gap-2">
                     {h.dir === "sent" ? <ArrowUp {...ICON} className="text-fg-3" /> : <ArrowDown {...ICON} className="text-fg-3" />}
                     {h.dir === "sent" ? "Sent" : "Received"}
                   </span>
                 </td>
-                <td className="text-right font-mono text-fg-2 tabular">{h.ok ? `${fmtBytes(h.speed)}/s` : "–"}</td>
-                <td className="text-right font-mono text-fg-2 tabular">{h.ok ? `${h.duration.toFixed(1)}s` : "–"}</td>
-                <td className="pl-6">
+                <td className="hidden text-right font-mono text-fg-2 tabular @xl:table-cell">{h.ok ? `${fmtBytes(h.speed)}/s` : "–"}</td>
+                <td className="hidden text-right font-mono text-fg-2 tabular @xl:table-cell">{h.ok ? `${h.duration.toFixed(1)}s` : "–"}</td>
+                <td className="hidden pl-6 @lg:table-cell">
                   <span className="inline-flex items-center gap-2 text-fg-2">
                     <Dot tone={h.ok ? "ok" : "bad"} />
                     {h.ok ? "Done" : "Failed"}
