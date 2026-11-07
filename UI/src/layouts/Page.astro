@@ -1,0 +1,83 @@
+---
+// Long-form static pages (about, privacy, terms): no JavaScript, same chrome as the app.
+import Base from "./Base.astro";
+import { Logo, NAV, SiteFooter } from "../components/Brand.tsx";
+import { breadcrumbs, webPage } from "../lib/seo";
+
+interface Props {
+  title: string;
+  description: string;
+  heading: string;
+  lede: string;
+  crumb: string;
+  type?: "AboutPage" | "WebPage";
+  /** ISO date the text last changed, shown and given to search engines. */
+  updated?: string;
+  image?: string;
+  imageAlt?: string;
+}
+
+const { title, description, heading, lede, crumb, type = "WebPage", updated, image, imageAlt } = Astro.props;
+const path = Astro.url.pathname;
+const updatedLabel = updated
+  ? new Date(updated + "T00:00:00Z").toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" })
+  : null;
+---
+
+<Base
+  title={title}
+  description={description}
+  image={image}
+  imageAlt={imageAlt}
+  schema={[webPage(type, heading, path, description, updated), breadcrumbs(crumb, path)]}
+>
+  <div class="flex min-h-dvh flex-col">
+    <header class="border-b border-line bg-deep">
+      <div class="mx-auto flex h-14 max-w-[1440px] items-center gap-6 px-4 md:px-8">
+        <Logo />
+        <nav aria-label="Pages" class="ml-auto flex items-center gap-1 text-sm">
+          {
+            NAV.map((l) => (
+              <a
+                href={l.href}
+                aria-current={path === l.href ? "page" : undefined}
+                class:list={[
+                  "hidden h-8 items-center rounded-lg px-3 transition-colors duration-150 sm:flex",
+                  path === l.href ? "bg-raised text-fg" : "text-fg-2 hover:text-fg",
+                ]}
+              >
+                {l.label}
+              </a>
+            ))
+          }
+          <a
+            href="/"
+            class="ml-2 flex h-8 items-center rounded-lg bg-fg px-3 font-medium text-page shadow-[inset_0_1px_0_rgba(255,255,255,0.4)] transition-colors duration-150 hover:bg-white"
+          >
+            Open Tincan
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mx-auto w-full max-w-[1440px] flex-1 px-4 py-12 md:px-8 md:py-16">
+      <article class="max-w-3xl">
+        <nav aria-label="Breadcrumb" class="text-sm text-fg-3">
+          <ol class="flex items-center gap-2">
+            <li><a href="/" class="hover:text-fg">Tincan</a></li>
+            <li aria-hidden="true">/</li>
+            <li aria-current="page" class="text-fg-2">{crumb}</li>
+          </ol>
+        </nav>
+        <h1 class="mt-4 text-3xl leading-tight font-medium tracking-tight text-fg md:text-4xl">{heading}</h1>
+        <p class="mt-4 text-lg leading-7 text-fg-2">{lede}</p>
+        {updatedLabel && <p class="mt-4 font-mono text-xs text-fg-3">Last updated <time datetime={updated}>{updatedLabel}</time></p>}
+        <div class="doc mt-8">
+          <slot />
+        </div>
+      </article>
+    </main>
+
+    <SiteFooter />
+  </div>
+</Base>

@@ -3,32 +3,19 @@ import { useEffect, useState, type ReactNode } from "react";
 import { NICK_MAX, editNick, loadProfile, profile, saveNick } from "../lib/profile";
 import type { Status } from "../lib/signal";
 import { useStore } from "../lib/store";
+import { Logo, SiteFooter } from "./Brand";
 import { Toasts } from "./Toasts";
 import { Button, Dot, ICON } from "./ui";
-
-function Mark() {
-  // Two stations and the line between them.
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
-      <rect x="1.75" y="6.75" width="6.5" height="6.5" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
-      <rect x="11.75" y="6.75" width="6.5" height="6.5" rx="1.5" fill="currentColor" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M8.5 10h3" stroke="currentColor" strokeWidth="1.5" />
-    </svg>
-  );
-}
 
 export function Shell({ tagline, status, children }: { tagline: string; status: Status; children: ReactNode }) {
   const p = useStore(profile);
   useEffect(loadProfile, []);
 
   return (
-    <div className="min-h-dvh">
+    <div className="flex min-h-dvh flex-col">
       <header className="border-b border-line bg-deep">
         <div className="mx-auto flex h-14 max-w-[1440px] items-center gap-6 px-4 md:px-8">
-          <a href="/" className="flex items-center gap-2 text-fg">
-            <Mark />
-            <span className="text-base font-medium">AetherDrop</span>
-          </a>
+          <Logo />
           <span className="hidden text-sm text-fg-3 lg:inline">{tagline}</span>
           <div className="ml-auto flex min-w-0 items-center gap-2" role="status" aria-live="polite">
             <Dot tone={status.tone} />
@@ -46,7 +33,8 @@ export function Shell({ tagline, status, children }: { tagline: string; status: 
           )}
         </div>
       </header>
-      <main className="mx-auto max-w-[1440px] px-4 py-6 md:px-8 md:py-8">{children}</main>
+      <main className="mx-auto w-full max-w-[1440px] flex-1 px-4 py-6 md:px-8 md:py-8">{children}</main>
+      <SiteFooter />
       {p.loaded && (!p.nick || p.editing) && <NamePrompt current={p.nick} />}
       <Toasts />
     </div>

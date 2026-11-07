@@ -1,0 +1,97 @@
+---
+import Page from "../layouts/Page.astro";
+import { SITE } from "../components/Brand.tsx";
+---
+
+<Page
+  title="About Tincan: how peer-to-peer calls and file sharing work"
+  description="How Tincan connects two browsers directly for video calls, screen sharing, chat, file transfer and games, and why nothing you send passes through a server."
+  heading="About Tincan"
+  lede="Tincan gives two people a private room in the browser: a video call, screen sharing with sound, chat, file transfer and a few games, all on one direct connection between your two devices."
+  crumb="About"
+  type="AboutPage"
+  updated="2026-11-07"
+  image="/og.png"
+>
+  <h2 id="name">Why the name</h2>
+  <p>
+    Remember the tin can telephone? Two cans, one string, and a voice that travels from one end to the other with nothing in
+    between. Tincan works the same way. Once the two of you are connected, your call, your screen, your messages and your files go
+    straight from one browser to the other.
+  </p>
+
+  <figure>
+    <img
+      src="/shots/room.jpg"
+      width="1440"
+      height="900"
+      loading="lazy"
+      decoding="async"
+      alt="A Tincan room seen by one person: the other person's shared screen, a chat beside it and the games panel below"
+    />
+    <figcaption>One room holds the call, the shared screen, chat, files and games side by side</figcaption>
+  </figure>
+
+  <h2 id="features">What you can do in a room</h2>
+  <ul>
+    <li><strong>Video and voice calls</strong> at 360p, 720p or 1080p, with a live readout of resolution, frame rate and bitrate.</li>
+    <li>
+      <strong>Screen sharing with sound.</strong> Share a tab, a window or the whole screen. A <em>sharp text</em> mode keeps documents
+      crisp and a <em>smooth motion</em> mode keeps video fluid.
+    </li>
+    <li><strong>Chat</strong> that lives only in the two open tabs.</li>
+    <li><strong>File transfer</strong> of any size, with a live map of every piece as it arrives.</li>
+    <li><strong>Games</strong>: Tic-tac-toe, Three pieces, Connect four and Quoridor.</li>
+    <li><strong>An expand button</strong> on each part of the room, so you can focus on one thing while the other person is told what you opened.</li>
+  </ul>
+
+  <h2 id="connection">How the connection works</h2>
+  <p>Browsers can't find each other on their own, so Tincan has a small server that does three things and nothing more:</p>
+  <ol>
+    <li><strong>Keeps the list of rooms.</strong> It knows each room's name, code, whether it has a PIN and how many people are in it.</li>
+    <li>
+      <strong>Introduces the two browsers.</strong> It passes a few setup messages (WebRTC offers, answers and network candidates)
+      from one person to the other.
+    </li>
+    <li>
+      <strong>Tells each browser its public address.</strong> A STUN responder on the same server answers over both IPv4 and IPv6,
+      so browsers can find a direct path, and IPv6 is preferred when both sides have it.
+    </li>
+  </ol>
+  <p>
+    After that, the browsers open a WebRTC connection to each other. There is deliberately no relay (TURN) server. If two
+    networks can't reach each other directly, the room says so instead of quietly routing your call through someone else's
+    machine. Most home and mobile networks connect fine; some strict office networks don't.
+  </p>
+
+  <h2 id="files">How files travel</h2>
+  <p>
+    Files are cut into 32 KB pieces and grouped into 512 KB blocks. For every 16 pieces of data, Tincan adds 4 pieces of parity
+    using Cauchy Reed-Solomon coding. Any 16 of the 20 pieces rebuild the block, so a few lost packets cost nothing and the
+    transfer doesn't stall waiting for resends. Pieces flow over three parallel channels, and anything still missing at the end
+    is requested again.
+  </p>
+
+  <h2 id="security">Encryption</h2>
+  <p>
+    WebRTC encrypts every connection: media with SRTP and data with DTLS, using keys the two browsers agree on between
+    themselves. The server never holds those keys and never sees your call, your screen, your messages or your files. As with any
+    browser-based calling service, you rely on the server to pass the setup messages along unchanged. The code is public so anyone
+    can check what it does.
+  </p>
+
+  <h2 id="open-source">Open source</h2>
+  <p>
+    Tincan is open source. The signaling and STUN server is written in Go and the web app uses Astro, React and Tailwind CSS,
+    served from Cloudflare. Read the code, report a problem or suggest a feature on <a href={SITE.repo}>GitHub</a>.
+  </p>
+
+  <h2 id="limits">Good to know</h2>
+  <ul>
+    <li>A room holds two people. A third visitor sees it as full.</li>
+    <li>Rooms appear in a public list on the home page. Add a PIN to keep a room to people you invite.</li>
+    <li>Empty rooms close after 10 minutes.</li>
+    <li>Nothing is saved. When you leave or close the tab, the call, chat and game are gone.</li>
+  </ul>
+  <p>Read the <a href="/privacy/">privacy policy</a> for exactly what the server handles, and the <a href="/terms/">terms of use</a>.</p>
+</Page>

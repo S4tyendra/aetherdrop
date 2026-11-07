@@ -1,0 +1,77 @@
+---
+import Page from "../layouts/Page.astro";
+import { SITE } from "../components/Brand.tsx";
+---
+
+<Page
+  title="Terms of use | Tincan"
+  description="The terms for using Tincan, the free peer-to-peer service for private video calls, screen sharing, chat, file transfer and games between two browsers."
+  heading="Terms of use"
+  lede="Tincan is a free service for private conversations between two people. These terms explain what you can expect from it and what we ask of you."
+  crumb="Terms"
+  updated="2026-11-07"
+>
+  <h2 id="agreement">Using Tincan</h2>
+  <p>By opening or joining a room you agree to these terms. If you don't agree, please don't use the service.</p>
+
+  <h2 id="service">The service</h2>
+  <p>
+    Tincan lists rooms, introduces two browsers to each other and helps them find a direct connection. Calls, screens, messages,
+    files and games then run directly between the two browsers. Tincan is free, comes without accounts, and may change, pause or
+    stop at any time without notice.
+  </p>
+
+  <h2 id="conduct">Your conduct</h2>
+  <p>You are responsible for how you use Tincan and for everything you send through it. Don't use it to:</p>
+  <ul>
+    <li>break the law, or share content that is illegal where you or the other person are;</li>
+    <li>harass, threaten or exploit anyone, or share content involving the abuse of minors;</li>
+    <li>send malware or anything meant to damage someone else's device or data;</li>
+    <li>share material you don't have the right to share;</li>
+    <li>record or broadcast someone without the consent the law requires.</li>
+  </ul>
+  <p>
+    Because content travels directly between browsers, we can't see or moderate it. If someone misuses Tincan, leave the room.
+    To report abuse of the service itself, open an issue on <a href={SITE.repo + "/issues"}>GitHub</a>.
+  </p>
+
+  <h2 id="rooms">Rooms and the public list</h2>
+  <p>
+    Every open room appears in the list on the home page with its name, code and how many people are in it, and anyone can see
+    that list. Don't put personal information in room names. Add a PIN if a room should only be joined by people you invite.
+    Empty rooms close after 10 minutes.
+  </p>
+
+  <h2 id="fair-use">Fair use of the servers</h2>
+  <p>
+    Please don't create rooms automatically, flood the signaling or STUN server, probe it for weaknesses, or try to get around the
+    limits on rooms and PIN attempts. We may block addresses that do.
+  </p>
+
+  <h2 id="content">Your content</h2>
+  <p>
+    What you share stays yours. We never receive it, so we claim no rights to it. The other person in your room can of course keep
+    anything you send them.
+  </p>
+
+  <h2 id="source">Source code</h2>
+  <p>The code that runs Tincan is published on <a href={SITE.repo}>GitHub</a>.</p>
+
+  <h2 id="warranty">No warranty</h2>
+  <p>
+    Tincan is provided as is, without warranties of any kind. We don't promise that it will always be available, that every pair
+    of networks can connect, or that a transfer or call will complete.
+  </p>
+
+  <h2 id="liability">Limitation of liability</h2>
+  <p>
+    To the extent the law allows, we are not liable for any loss or damage arising from your use of Tincan, including lost data,
+    interrupted calls or anything another person sends you. Nothing in these terms limits liability that cannot be limited by law.
+  </p>
+
+  <h2 id="changes">Changes to these terms</h2>
+  <p>
+    We may update these terms. The date at the top shows when they last changed, and using Tincan after a change means you accept
+    the new version. See also the <a href="/privacy/">privacy policy</a>.
+  </p>
+</Page>

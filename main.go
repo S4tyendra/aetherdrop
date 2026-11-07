@@ -10,7 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
-// AetherDrop signaling server: room lobby + WebRTC signal relay.
+// Tincan signaling server: room lobby + WebRTC signal relay.
 // The frontend (UI/) is hosted separately; this server only does signaling.
 func main() {
 	h := newHub()

@@ -2,7 +2,7 @@
 
 import { Store } from "./store";
 
-const KEY = "aether:nick";
+const KEY = "tincan:nick";
 export const NICK_MAX = 24;
 
 /** loaded stays false through server render and hydration, so markup matches. */

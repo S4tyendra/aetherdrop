@@ -3,6 +3,10 @@ import Base from "../layouts/Base.astro";
 import RoomApp from "../components/RoomApp.tsx";
 ---
 
-<Base title="AetherDrop · Room" description="A two-person AetherDrop room: call, share your screen, chat, send files and play.">
+<Base
+  title="Tincan room"
+  description="A private Tincan room for two: call, share your screen, chat, send files and play, browser to browser."
+  noindex
+>
   <RoomApp client:load />
 </Base>

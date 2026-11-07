@@ -1,8 +1,8 @@
-# AetherDrop
+# Tincan
 
-Rooms for two people: video call, screen sharing with sound, chat, file transfer and games, all browser to browser over WebRTC. The server only does signaling; media, chat, game moves and file bytes travel peer to peer.
+A direct line for two. Private rooms for two people: video call, screen sharing with sound, chat, file transfer and games, all browser to browser over WebRTC. The server only does signaling; media, chat, game moves and file bytes travel peer to peer.
 
-Live: https://aetherdrop.2k24.workers.dev
+Live: https://tincan.devh.in
 
 ## How it fits together
 
@@ -41,7 +41,9 @@ make build:frontend    # UI/dist
 
 make deploy            # both
 make deploy:backend    # rsync to the VPS, restart the OpenRC user service, health check
-make deploy:frontend   # wrangler deploy
+make deploy:frontend   # wrangler deploy (worker "tincan", custom domain tincan.devh.in)
+
+make shots             # regenerate public/shots/room.jpg, public/og.png and the icons from a real two-person room
 ```
 
 `VPS`, `APP_DIR`, `SERVICE` and `HEALTH` can be overridden, e.g. `make deploy:backend VPS=myhost`.

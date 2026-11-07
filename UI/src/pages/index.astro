@@ -1,8 +1,16 @@
 ---
 import Base from "../layouts/Base.astro";
 import LobbyApp from "../components/LobbyApp.tsx";
+import HomeContent from "../components/HomeContent.astro";
+import { faqPage, webApp, website } from "../lib/seo";
 ---
 
-<Base title="AetherDrop · Rooms" description="Rooms for two: video, screen sharing, chat, file transfer and games, all browser to browser.">
-  <LobbyApp client:load />
+<Base
+  title="Tincan: private P2P video calls and file sharing for two"
+  description="Free private rooms for two. Video calls, screen sharing with sound, chat, file transfer of any size and games, peer to peer in your browser. No sign-up."
+  schema={[website, webApp, faqPage]}
+>
+  <LobbyApp client:load>
+    <HomeContent />
+  </LobbyApp>
 </Base>

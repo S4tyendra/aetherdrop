@@ -1,11 +1,12 @@
-# AetherDrop: Go signaling backend (VPS) + Astro frontend (Cloudflare Workers).
+# Tincan: Go signaling backend (VPS) + Astro frontend (Cloudflare Workers).
 #
 #   make build              build both
 #   make build:backend      static Linux binary ./p2p-signal
 #   make build:frontend     UI/dist
 #   make deploy             deploy both
 #   make deploy:backend     rsync binary to the VPS, restart the OpenRC user service
-#   make deploy:frontend    wrangler deploy (worker "aetherdrop")
+#   make deploy:frontend    wrangler deploy (worker "tincan")
+#   make shots              regenerate screenshots, social card and icons from the real app
 
 VPS     ?= vps
 APP_DIR ?= /home/satya/myApps/p2p
@@ -13,7 +14,7 @@ SERVICE ?= p2p-signal
 BIN     := p2p-signal
 HEALTH  ?= https://p2p.devh.in/healthz
 
-.PHONY: build build\:backend build\:frontend deploy deploy\:backend deploy\:frontend clean
+.PHONY: build build\:backend build\:frontend deploy deploy\:backend deploy\:frontend shots clean
 
 build: build\:backend build\:frontend
 
@@ -37,6 +38,9 @@ deploy\:backend: build\:backend
 
 deploy\:frontend: build\:frontend
 	cd UI && bunx wrangler deploy
+
+shots: UI/node_modules
+	cd UI && node scripts/shots.mjs
 
 clean:
 	rm -rf $(BIN) UI/dist

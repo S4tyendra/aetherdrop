@@ -74,7 +74,7 @@ func stunResponse(req []byte, from *net.UDPAddr) []byte {
 	}
 
 	attrs := appendAttr(nil, attrXorMapped, value)
-	attrs = appendAttr(attrs, attrSoftware, []byte("aetherdrop"))
+	attrs = appendAttr(attrs, attrSoftware, []byte("tincan"))
 
 	resp := make([]byte, 20, 20+len(attrs))
 	binary.BigEndian.PutUint16(resp[0:2], stunBindingResp)

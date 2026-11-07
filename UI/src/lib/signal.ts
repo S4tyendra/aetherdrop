@@ -117,13 +117,13 @@ export const CREATE_ERRORS: Record<string, string> = {
 export const handoff = {
   set(id: string, pin: string) {
     try {
-      sessionStorage.setItem(`aether:join:${id}`, pin);
+      sessionStorage.setItem(`tincan:join:${id}`, pin);
     } catch {}
   },
   take(id: string): string | null {
     try {
-      const v = sessionStorage.getItem(`aether:join:${id}`);
-      sessionStorage.removeItem(`aether:join:${id}`);
+      const v = sessionStorage.getItem(`tincan:join:${id}`);
+      sessionStorage.removeItem(`tincan:join:${id}`);
       return v;
     } catch {
       return null;

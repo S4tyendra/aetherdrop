@@ -1,0 +1,115 @@
+---
+import Page from "../layouts/Page.astro";
+import { SITE } from "../components/Brand.tsx";
+---
+
+<Page
+  title="Privacy policy | Tincan"
+  description="What Tincan's server handles and what it never sees: calls, screens, chat and files go directly between browsers. No accounts, cookies, analytics or ads."
+  heading="Privacy policy"
+  lede="Tincan is built so that the things you share never reach us. This page lists everything our server does handle, why, and for how long."
+  crumb="Privacy"
+  updated="2026-11-07"
+>
+  <h2 id="summary">In short</h2>
+  <ul>
+    <li>Your calls, shared screens, chat messages, files and game moves go directly between the two browsers, encrypted. They never pass through our server.</li>
+    <li>There are no accounts, no cookies, no analytics, no ads and no trackers.</li>
+    <li>The server keeps what it needs to run rooms in memory only, and forgets it when you leave or the room closes.</li>
+    <li>Our logs contain room codes, random session IDs and times. No IP addresses, names or content.</li>
+  </ul>
+
+  <h2 id="server">What passes through our server</h2>
+  <p>To list rooms and introduce two browsers to each other, the signaling server handles the following:</p>
+  <table>
+    <thead>
+      <tr><th scope="col">Data</th><th scope="col">Why</th><th scope="col">How long</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Your IP address</td>
+        <td>To limit how many rooms one address can open and to slow down PIN guessing</td>
+        <td>In memory while you are connected. A count of wrong PINs is kept for up to 5 minutes. Never written to logs</td>
+      </tr>
+      <tr>
+        <td>Your display name</td>
+        <td>To show the other person in your room who they are talking to</td>
+        <td>In memory while you are connected</td>
+      </tr>
+      <tr>
+        <td>Room name and code</td>
+        <td>To show the room in the public list</td>
+        <td>Until the room has been empty for 10 minutes</td>
+      </tr>
+      <tr>
+        <td>Room PIN</td>
+        <td>To check that people joining know it</td>
+        <td>Only a salted SHA-256 hash is kept, in memory, and deleted with the room</td>
+      </tr>
+      <tr>
+        <td>Connection setup messages</td>
+        <td>
+          Passed to the other person so your browsers can connect. They contain network addresses and encryption fingerprints,
+          not content
+        </td>
+        <td>Relayed as they arrive, not stored</td>
+      </tr>
+      <tr>
+        <td>Server log</td>
+        <td>To keep the service running</td>
+        <td>Room codes, random session IDs and timestamps only</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 id="stun">Address lookup (STUN)</h3>
+  <p>
+    Your browser sends a small request to our STUN responder, which replies with the public address it saw so the two browsers can
+    find a direct path. Nothing about these requests is stored.
+  </p>
+
+  <h2 id="never">What never reaches us</h2>
+  <p>
+    Audio and video from your camera and microphone, your shared screen and its sound, chat messages, files and game moves all
+    travel over an encrypted WebRTC connection straight between the two browsers. There is no relay server that could see
+    them, and nothing is recorded.
+  </p>
+
+  <h2 id="peer">What the other person receives</h2>
+  <p>
+    Because the connection is direct, the other person's browser learns the network addresses (IP addresses) your browser uses to
+    reach it, as happens with any peer-to-peer call. They also see your display name and anything you choose to share in the room.
+  </p>
+
+  <h2 id="browser">What is stored in your browser</h2>
+  <ul>
+    <li><code>tincan:nick</code> in local storage holds the name you chose, so you don't have to type it again.</li>
+    <li>
+      When you join a room with a PIN from the home page, the PIN is held in session storage just long enough to hand it to the room
+      page, then removed.
+    </li>
+  </ul>
+  <p>Tincan sets no cookies. Clearing this site's data in your browser removes your saved name.</p>
+
+  <h2 id="hosting">Hosting</h2>
+  <p>
+    The website is served by <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener">Cloudflare</a>, which processes
+    requests, including IP addresses, to deliver pages under its own policy. The signaling and STUN server runs on a virtual
+    server in Germany. Neither receives the content of your calls or files.
+  </p>
+
+  <h2 id="children">Children</h2>
+  <p>Tincan is not directed at children under 13 and we don't knowingly handle their information.</p>
+
+  <h2 id="rights">Your choices</h2>
+  <p>
+    Since we keep no account or history, there is nothing about you to export or delete after you leave. If you have a question
+    about your data, open an issue on <a href={SITE.repo + "/issues"}>GitHub</a>.
+  </p>
+
+  <h2 id="changes">Changes to this policy</h2>
+  <p>
+    If how Tincan handles data changes, this page changes with it and the date at the top is updated. The full history is
+    public in the <a href={SITE.repo}>source repository</a>.
+  </p>
+</Page>

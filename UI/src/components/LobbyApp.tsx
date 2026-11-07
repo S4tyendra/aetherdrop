@@ -1,5 +1,5 @@
 import { Dices, Lock } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { BLOCK_SIZE, K, M, N, SHARD_SIZE } from "../lib/files";
 import { createRoom, joinRoom, lobby, startLobby } from "../lib/lobby";
 import { randomRoomName } from "../lib/profile";
@@ -15,12 +15,20 @@ const pinField =
 const field =
   "h-10 w-full rounded-[10px] border border-line-2 bg-deep px-3 text-sm text-fg outline-none transition-[border-color] duration-150 placeholder:text-fg-3 focus:border-fg-3";
 
-export default function LobbyApp() {
+/** `children` is static, server-rendered page content (see pages/index.astro). */
+export default function LobbyApp({ children }: { children?: ReactNode }) {
   const s = useStore(lobby);
   useEffect(startLobby, []);
 
   return (
-    <Shell tagline="Rooms for two: call, chat, send files and play, browser to browser" status={s.status}>
+    <Shell tagline="" status={s.status}>
+      <section className="mb-8 max-w-3xl">
+        <h1 className="text-3xl leading-tight font-medium tracking-tight text-fg md:text-4xl">A direct line for two</h1>
+        <p className="mt-3 text-base leading-6 text-fg-2">
+          Private video calls, screen sharing, chat, file transfer and games between two browsers. No account, no install, and
+          nothing you send passes through our server
+        </p>
+      </section>
       <div className="grid animate-enter grid-cols-1 items-start gap-6 lg:grid-cols-[360px_minmax(0,1fr)] lg:grid-rows-[auto_1fr]">
         <CreateCard creating={s.creating} online={s.loaded && s.status.tone === "ok"} />
         <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
@@ -28,6 +36,7 @@ export default function LobbyApp() {
         </div>
         <CodingCard />
       </div>
+      {children}
     </Shell>
   );
 }

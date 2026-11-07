@@ -2,10 +2,31 @@
 import "../styles/global.css";
 
 interface Props {
+  /** Full page title, 60 characters or fewer reads best in search results. */
   title: string;
+  /** 120 to 160 characters: what the page offers, in plain words. */
   description: string;
+  /** Rooms are private and short-lived, so they stay out of search. */
+  noindex?: boolean;
+  /** Social card image, relative to the site root. */
+  image?: string;
+  imageAlt?: string;
+  /** schema.org objects, emitted as JSON-LD. */
+  schema?: object[];
 }
-const { title, description } = Astro.props;
+
+const {
+  title,
+  description,
+  noindex = false,
+  image = "/og.png",
+  imageAlt = "A Tincan room: the other person's shared screen, a chat and the games panel",
+  schema = [],
+} = Astro.props;
+
+const site = Astro.site!;
+const canonical = new URL(Astro.url.pathname, site).href;
+const imageUrl = new URL(image, site).href;
 ---
 
 <!doctype html>
@@ -13,10 +34,41 @@ const { title, description } = Astro.props;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={description} />
-    <meta name="theme-color" content="#0f0f10" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
+    <meta name="description" content={description} />
+    {!noindex && <link rel="canonical" href={canonical} />}
+    <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large"} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Tincan" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={imageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl} />
+    <meta name="twitter:image:alt" content={imageAlt} />
+
+    <meta name="application-name" content="Tincan" />
+    <meta name="apple-mobile-web-app-title" content="Tincan" />
+    <meta name="theme-color" content="#0f0f10" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+    <link rel="preconnect" href="https://p2p.devh.in" crossorigin />
+
+    {schema.map((s) => <script type="application/ld+json" set:html={JSON.stringify(s)} />)}
   </head>
   <body>
     <slot />
