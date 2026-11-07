@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AetherDrop - High-Performance P2P File Drop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        .font-display {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-[#0B0F19] text-slate-100 min-h-screen p-4 md:p-8 font-sans selection:bg-indigo-500/30 selection:text-indigo-200">
+    <!-- Background glow decoration -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none select-none opacity-40">
+        <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-900/20 blur-[120px]"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-900/20 blur-[120px]">
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto space-y-6 relative">
+        <!-- Top Header Navigation -->
+        <header
+            class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900/40 backdrop-blur-md border border-slate-800/80 rounded-2xl p-5">
+            <div class="flex items-center justify-between w-full md:w-auto gap-4">
+                <div class="space-y-1">
+                    <h1
+                        class="text-xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent font-display tracking-tight flex items-center gap-2">
+                        <svg class="w-6 h-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        AetherDrop
+                    </h1>
+                    <p class="text-xs text-slate-400 font-sans">High-Performance P2P File Drop with Forward Error Correction
+                    </p>
+                </div>
+            </div>
+
+            <!-- Mode Switcher Navigation -->
+            <nav class="flex items-center gap-1.5 bg-slate-950/60 border border-slate-800/80 p-1.5 rounded-xl">
+                <a href="index.html"
+                    class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white shadow-sm flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    File Drop
+                </a>
+                <a href="call.html"
+                    class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-colors flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Video Call & Chat
+                </a>
+            </nav>
+
+            <div
+                class="flex items-center gap-2 px-3 py-1.5 bg-slate-950/60 border border-slate-800/80 rounded-full text-[10px] font-mono font-semibold">
+                <span id="status-dot" class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                <span id="status-text" class="text-amber-400 tracking-wider">CONNECTING SIGNAL...</span>
+            </div>
+        </header>
+
+        <!-- Main Workspace Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Left Panel: Connection Configuration -->
+            <div class="lg:col-span-5 space-y-6">
+                <!-- Session Identity Card -->
+                <div class="bg-slate-900/40 backdrop-blur-md border border-slate-800/80 rounded-2xl p-5 space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-300 font-display flex items-center gap-2">
+                        <svg class="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Connection Settings
+                    </h3>
+
+                    <!-- My Device ID -->
+                    <div
+                        class="flex items-center justify-between bg-slate-950/60 border border-slate-800/60 rounded-xl p-3 font-mono">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] text-slate-500 font-sans font-medium uppercase tracking-wider">Your
+                                Connection Key</span>
+                            <span id="my-id"
+                                class="text-lg font-bold text-slate-200 tracking-wider">CONNECTING...</span>
+                        </div>
+                        <button id="copy-btn"
+                            class="p-2 hover:bg-slate-800/60 rounded-lg transition-colors text-slate-400 hover:text-slate-200"
+                            title="Copy Key">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Connect to Peer ID -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-medium text-slate-400 font-sans">Target Connection Key</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="target-id"
+                                class="bg-slate-950/60 border border-slate-800/80 focus:border-indigo-500/80 focus:ring-1 focus:ring-indigo-500/50 p-2.5 rounded-lg w-full text-sm font-mono uppercase tracking-widest text-slate-200 outline-none transition-all placeholder-slate-600"
+                                placeholder="ENTER 5-CHAR KEY" maxlength="5">
+                            <button id="connect-btn"
+                                class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-lg font-semibold transition-colors font-sans text-xs tracking-wider uppercase whitespace-nowrap">Connect</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FEC Protocol Details -->
+                <div class="bg-slate-900/40 backdrop-blur-md border border-slate-800/80 rounded-2xl p-5 space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-300 font-display flex items-center gap-2">
+                        <svg class="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                        Protocol Engine Details
+                    </h3>
+
+                    <div class="grid grid-cols-2 gap-3 text-[11px] font-mono">
+                        <div class="bg-slate-950/40 p-2.5 rounded-lg border border-slate-800/60">
+                            <div class="text-slate-500 font-sans">Error Correction</div>
+                            <div class="text-indigo-400 font-bold mt-0.5" id="engine-fec">16 Data + 4 Parity</div>
+                        </div>
+                        <div class="bg-slate-950/40 p-2.5 rounded-lg border border-slate-800/60">
+                            <div class="text-slate-500 font-sans">Redundancy Ratio</div>
+                            <div class="text-indigo-400 font-bold mt-0.5">25% Cauchy RS</div>
+                        </div>
+                        <div class="bg-slate-950/40 p-2.5 rounded-lg border border-slate-800/60">
+                            <div class="text-slate-500 font-sans">Shard Size</div>
+                            <div class="text-slate-300 font-bold mt-0.5">32 KB Packets</div>
+                        </div>
+                        <div class="bg-slate-950/40 p-2.5 rounded-lg border border-slate-800/60">
+                            <div class="text-slate-500 font-sans">Block Size</div>
+                            <div class="text-slate-300 font-bold mt-0.5">512 KB Chunks</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Dropzone & Progress Tracking -->
+            <div class="lg:col-span-7 space-y-6">
+                <!-- Dropzone Section -->
+                <div class="bg-slate-900/40 backdrop-blur-md border border-slate-800/80 rounded-2xl p-5 space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-300 font-display flex items-center gap-2">
+                        <svg class="w-4 h-4 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Send File
+                    </h3>
+
+                    <!-- Interactive Drag-and-Drop Area -->
+                    <div id="dropzone"
+                        class="border-2 border-dashed border-slate-800 hover:border-indigo-500/50 hover:bg-indigo-500/[0.02] active:bg-indigo-500/[0.04] transition-all rounded-xl p-8 text-center cursor-pointer relative group flex flex-col items-center justify-center min-h-[200px]">
+                        <input type="file" id="file-input" class="hidden">
+
+                        <!-- Block Overlay when Not Connected -->
+                        <div id="dropzone-disabled"
+                            class="absolute inset-0 bg-[#0B0F19]/90 backdrop-blur-[1px] rounded-xl flex flex-col items-center justify-center p-4 z-10 select-none">
+                            <svg class="w-8 h-8 text-slate-600 mb-2" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                            </svg>
+                            <p class="text-xs font-semibold text-slate-400 font-sans">Device Not Connected</p>
+                            <p class="text-[10px] text-slate-500 font-sans mt-0.5">Establish connection to a peer to
+                                enable file drop</p>
+                        </div>
+
+                        <!-- Dropzone contents -->
+                        <svg class="w-10 h-10 text-slate-500 group-hover:text-indigo-400 group-hover:scale-110 transition-all duration-300 mb-3"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <p class="text-xs font-semibold text-slate-300 font-sans">Drag & drop files here or <span
+                                class="text-indigo-400 group-hover:underline">browse</span></p>
+                        <p class="text-[10px] text-slate-500 font-sans mt-0.5">Files are sliced, encoded, and sent
+                            directly to peer</p>
+                    </div>
+                </div>
+
+                <!-- Active Upload Panel -->
+                <div id="upload-panel"
+                    class="hidden bg-slate-900/40 backdrop-blur-md border border-slate-800/80 rounded-2xl p-5 space-y-4">
+                    <div class="flex justify-between items-start">
+                        <div class="space-y-1">
+                            <span
+                                class="text-[9px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20 font-bold uppercase tracking-wider">Sending
+                                File</span>
+                            <h4 id="upload-filename"
+                                class="text-sm font-semibold text-slate-200 truncate max-w-[280px]">filename.zip</h4>
+                        </div>
+                        <span id="upload-pct" class="text-lg font-bold text-amber-400 font-mono">0%</span>
+                    </div>
+
+                    <!-- Progress bar -->
+                    <div class="w-full bg-slate-950 border border-slate-800/50 rounded-full h-2 overflow-hidden">
+                        <div id="upload-progress-bar"
+                            class="bg-gradient-to-r from-amber-500 to-orange-500 h-full rounded-full transition-all duration-150"
+                            style="width:0%"></div>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-[10px] font-mono">
+                        <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-900">
+                            <div class="text-slate-500 font-sans">Bytes Transmitted</div>
+                            <div id="upload-bytes" class="text-slate-300 font-semibold mt-0.5">0 B / 0 B</div>
+                        </div>
+                        <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-900">
+                            <div class="text-slate-500 font-sans">Upload Speed</div>
+                            <div id="upload-speed" class="text-slate-300 font-semibold mt-0.5">-- MB/s</div>
+                        </div>
+                        <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-900">
+                            <div class="text-slate-500 font-sans">Time Remaining</div>
+                            <div id="upload-eta" class="text-slate-300 font-semibold mt-0.5">--s</div>
+                        </div>
+                    </div>
+
+                    <!-- Visual Blocks map -->
+                    <div class="space-y-1.5">
+                        <div class="text-[10px] text-slate-400 font-semibold tracking-wide uppercase">Transmission
+                            Blocks</div>
+                        <div id="upload-grid"
+                            class="flex flex-wrap gap-[3px] p-2 bg-slate-950/40 rounded-lg border border-slate-800/50 max-h-[100px] overflow-y-auto">
+                        </div>
+                    </div>
+
+                    <!-- Workers activity -->
+                    <div class="space-y-1.5">
+                        <div class="text-[10px] text-slate-400 font-semibold tracking-wide uppercase">Active Streams
+                        </div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div id="tx-wrk-0"
+                                class="flex items-center gap-2 bg-slate-950/50 border border-slate-800/60 px-2 py-1.5 rounded-lg">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-600 shrink-0"></span>
+                                <span class="text-[9px] text-slate-500 truncate font-mono">Stream 1: Idle</span>
+                            </div>
+                            <div id="tx-wrk-1"
+                                class="flex items-center gap-2 bg-slate-950/50 border border-slate-800/60 px-2 py-1.5 rounded-lg">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-600 shrink-0"></span>
+                                <span class="text-[9px] text-slate-500 truncate font-mono">Stream 2: Idle</span>
+                            </div>
+                            <div id="tx-wrk-2"
+                                class="flex items-center gap-2 bg-slate-950/50 border border-slate-800/60 px-2 py-1.5 rounded-lg">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-600 shrink-0"></span>
+                                <span class="text-[9px] text-slate-500 truncate font-mono">Stream 3: Idle</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Download Panel -->
+                <div id="download-panel"
+                    class="hidden bg-slate-900/40 backdrop-blur-md border border-slate-800/80 rounded-2xl p-5 space-y-4">
+                    <div class="flex justify-between items-start">
+                        <div class="space-y-1">
+                            <span
+                                class="text-[9px] text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/20 font-bold uppercase tracking-wider">Downloading
+                                File</span>
+                            <h4 id="download-filename"
+                                class="text-sm font-semibold text-slate-200 truncate max-w-[280px]">filename.zip</h4>
+                        </div>
+                        <span id="download-pct" class="text-lg font-bold text-indigo-400 font-mono">0%</span>
+                    </div>
+
+                    <!-- Progress bar -->
+                    <div class="w-full bg-slate-950 border border-slate-800/50 rounded-full h-2 overflow-hidden">
+                        <div id="download-progress-bar"
+                            class="bg-gradient-to-r from-indigo-500 to-purple-500 h-full rounded-full transition-all duration-150"
+                            style="width:0%"></div>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-[10px] font-mono">
+                        <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-900">
+                            <div class="text-slate-500 font-sans">Bytes Received</div>
+                            <div id="download-bytes" class="text-slate-300 font-semibold mt-0.5">0 B / 0 B</div>
+                        </div>
+                        <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-900">
+                            <div class="text-slate-500 font-sans">Download Speed</div>
+                            <div id="download-speed" class="text-slate-300 font-semibold mt-0.5">-- MB/s</div>
+                        </div>
+                        <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-900">
+                            <div class="text-slate-500 font-sans">Time Remaining</div>
+                            <div id="download-eta" class="text-slate-300 font-semibold mt-0.5">--s</div>
+                        </div>
+                        <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-900">
+                            <div class="text-slate-500 font-sans">Packet Loss</div>
+                            <div id="download-loss" class="text-red-400 font-bold mt-0.5">0% (0 pkts)</div>
+                        </div>
+                    </div>
+
+                    <!-- Visual Blocks map -->
+                    <div class="space-y-1.5">
+                        <div class="text-[10px] text-slate-400 font-semibold tracking-wide uppercase">Reconstruction
+                            Blocks</div>
+                        <div id="download-grid"
+                            class="flex flex-wrap gap-[3px] p-2 bg-slate-950/40 rounded-lg border border-slate-800/50 max-h-[100px] overflow-y-auto">
+                        </div>
+                    </div>
+
+                    <!-- Workers activity -->
+                    <div class="space-y-1.5">
+                        <div class="text-[10px] text-slate-400 font-semibold tracking-wide uppercase">Active Streams
+                        </div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div id="rx-wrk-0"
+                                class="flex items-center gap-2 bg-slate-950/50 border border-slate-800/60 px-2 py-1.5 rounded-lg">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-600 shrink-0"></span>
+                                <span class="text-[9px] text-slate-500 truncate font-mono">Stream 1: Idle</span>
+                            </div>
+                            <div id="rx-wrk-1"
+                                class="flex items-center gap-2 bg-slate-950/50 border border-slate-800/60 px-2 py-1.5 rounded-lg">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-600 shrink-0"></span>
+                                <span class="text-[9px] text-slate-500 truncate font-mono">Stream 2: Idle</span>
+                            </div>
+                            <div id="rx-wrk-2"
+                                class="flex items-center gap-2 bg-slate-950/50 border border-slate-800/60 px-2 py-1.5 rounded-lg">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-600 shrink-0"></span>
+                                <span class="text-[9px] text-slate-500 truncate font-mono">Stream 3: Idle</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Session Transfer History Panel -->
+                <div class="bg-slate-900/40 backdrop-blur-md border border-slate-800/80 rounded-2xl p-5 space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-800/80 pb-3">
+                        <h3 class="text-sm font-semibold text-slate-300 font-display flex items-center gap-2">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Session Transfer History
+                        </h3>
+                        <span id="history-count"
+                            class="text-[10px] font-mono font-bold bg-slate-800/80 border border-slate-700/60 px-2.5 py-0.5 rounded-full text-slate-400">0
+                            Files</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="text-slate-500 border-b border-slate-800/60 font-medium">
+                                    <th class="py-2 font-semibold">File Name</th>
+                                    <th class="py-2 font-semibold text-right">Size</th>
+                                    <th class="py-2 font-semibold text-center">Direction</th>
+                                    <th class="py-2 font-semibold text-right">Avg Speed</th>
+                                    <th class="py-2 font-semibold text-right">Duration</th>
+                                    <th class="py-2 font-semibold text-right">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-body" class="divide-y divide-slate-800/40 text-slate-300 font-mono">
+                                <!-- Empty state -->
+                                <tr id="history-empty">
+                                    <td colspan="6" class="py-8 text-center text-slate-500 italic font-sans text-xs">
+                                        No transfers recorded in this session
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
+
+    <script>
+        // ─── Config ──────────────────────────────────────────────────────────────────
+        const WS_URL = 'wss://p2p.devh.in/ws';
+        const SHARD_SIZE = 32768;            // 32 KB per UDP-like packet
+        const K = 16;                // Data Shards per block
+        const M = 4;                 // Parity Shards per block (25% redundancy)
+        const BLOCK_SIZE = K * SHARD_SIZE;    // 512 KB per coding block
+        const N_WORKERS = 3;                 // Parallel unreliable worker streams
+        const ICE = [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+        ];
+
+        document.getElementById('engine-fec').textContent = `${K} Data + ${M} Parity`;
+
+        // ─── Galois Field (GF(2^8)) Arithmetic for Reed-Solomon ─────────────────────
+        const gfExp = new Uint8Array(512);
+        const gfLog = new Uint8Array(256);
+
+        function initGF() {
+            let x = 1;
+            for (let i = 0; i < 255; i++) {
+                gfExp[i] = x;
+                gfLog[x] = i;
+                x = (x << 1) ^ (x & 0x80 ? 0x11d : 0);
+            }
+            for (let i = 255; i < 512; i++) {
+                gfExp[i] = gfExp[i - 255];
+            }
+        }
+        initGF();
+
+        function gfMul(a, b) {
+            if (a === 0 || b === 0) return 0;
+            return gfExp[gfLog[a] + gfLog[b]];
+        }
+
+        function gfDiv(a, b) {
+            if (a === 0) return 0;
+            if (b === 0) throw new Error("GF division by zero");
+            return gfExp[gfLog[a] - gfLog[b] + 255];
+        }
+
+        // ─── Cauchy Systematic Reed-Solomon Generator Matrix ────────────────────────
+        function makeCauchyMatrix(K, M) {
+            const matrix = new Uint8Array(M * K);
+            for (let i = 0; i < M; i++) {
+                const x = i + K;
+                for (let j = 0; j < K; j++) {
+                    const y = j;
+                    matrix[i * K + j] = gfDiv(1, x ^ y);
+                }
+            }
+            return matrix;
+        }
+
+        function invertMatrix(matrix, n) {
+            const aug = new Uint8Array(n * 2 * n);
+            for (let i = 0; i < n; i++) {
+                for (let j = 0; j < n; j++) {
+                    aug[i * (2 * n) + j] = matrix[i * n + j];
+                }
+                aug[i * (2 * n) + n + i] = 1;
+            }
+
+            for (let c = 0; c < n; c++) {
+                let pivotRow = -1;
+                for (let r = c; r < n; r++) {
+                    if (aug[r * (2 * n) + c] !== 0) {
+                        pivotRow = r;
+                        break;
+                    }
+                }
+                if (pivotRow === -1) {
+                    throw new Error("Matrix is singular (erasure recovery failed)");
+                }
+
+                if (pivotRow !== c) {
+                    for (let j = 0; j < 2 * n; j++) {
+                        const tmp = aug[c * (2 * n) + j];
+                        aug[c * (2 * n) + j] = aug[pivotRow * (2 * n) + j];
+                        aug[pivotRow * (2 * n) + j] = tmp;
+                    }
+                }
+
+                const pivotVal = aug[c * (2 * n) + c];
+                if (pivotVal !== 1) {
+                    const invPivot = gfDiv(1, pivotVal);
+                    for (let j = 0; j < 2 * n; j++) {
+                        aug[c * (2 * n) + j] = gfMul(aug[c * (2 * n) + j], invPivot);
+                    }
+                }
+
+                for (let r = 0; r < n; r++) {
+                    if (r !== c) {
+                        const factor = aug[r * (2 * n) + c];
+                        if (factor !== 0) {
+                            for (let j = 0; j < 2 * n; j++) {
+                                aug[r * (2 * n) + j] ^= gfMul(aug[c * (2 * n) + j], factor);
+                            }
+                        }
+                    }
+                }
+            }
+
+            const inv = new Uint8Array(n * n);
+            for (let i = 0; i < n; i++) {
+                for (let j = 0; j < n; j++) {
+                    inv[i * n + j] = aug[i * (2 * n) + n + j];
+                }
+            }
+            return inv;
+        }
+
+        function encodeBlock(dataShards) {
+            const parityShards = [];
+            for (let i = 0; i < M; i++) {
+                parityShards.push(new Uint8Array(SHARD_SIZE));
+            }
+
+            const C = makeCauchyMatrix(K, M);
+            for (let b = 0; b < SHARD_SIZE; b++) {
+                for (let i = 0; i < M; i++) {
+                    let sum = 0;
+                    for (let j = 0; j < K; j++) {
+                        sum ^= gfMul(C[i * K + j], dataShards[j][b]);
+                    }
+                    parityShards[i][b] = sum;
+                }
+            }
+            return parityShards;
+        }
+
+        function reconstructBlock(receivedShards) {
+            const hasAllData = receivedShards.filter(s => s.idx < K).length === K;
+            if (hasAllData) {
+                return receivedShards.filter(s => s.idx < K).sort((a, b) => a.idx - b.idx).map(s => s.data);
+            }
+
+            receivedShards.sort((a, b) => a.idx - b.idx);
+
+            const G_prime = new Uint8Array(K * K);
+            const C = makeCauchyMatrix(K, M);
+
+            for (let i = 0; i < K; i++) {
+                const shardIdx = receivedShards[i].idx;
+                if (shardIdx < K) {
+                    G_prime[i * K + shardIdx] = 1;
+                } else {
+                    const cauchyRow = shardIdx - K;
+                    for (let j = 0; j < K; j++) {
+                        G_prime[i * K + j] = C[cauchyRow * K + j];
+                    }
+                }
+            }
+
+            const G_prime_inv = invertMatrix(G_prime, K);
+            const reconstructed = [];
+            for (let j = 0; j < K; j++) {
+                reconstructed.push(new Uint8Array(SHARD_SIZE));
+            }
+
+            for (let b = 0; b < SHARD_SIZE; b++) {
+                for (let r = 0; r < K; r++) {
+                    let sum = 0;
+                    for (let c = 0; c < K; c++) {
+                        sum ^= gfMul(G_prime_inv[r * K + c], receivedShards[c].data[b]);
+                    }
+                    reconstructed[r][b] = sum;
+                }
+            }
+            return reconstructed;
+        }
+
+        // ─── Global State ────────────────────────────────────────────────────────────
+        let localId = '', targetId = '';
+        let pc = null, ws = null;
+        let isCaller = false;
+
+        let iceBuf = [], srdDone = false;
+
+        let ctrlDC = null;
+        let wrkDCs = [null, null, null]; // Unreliable channels
+
+        let TX = null; // Sender Session
+        let RX = null; // Receiver Session
+
+        let transferHistory = [];
+
+        // ─── UI / Toast Notifications ────────────────────────────────────────────────
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `flex items-center gap-2 px-4 py-3 rounded-lg border shadow-lg backdrop-blur-md transition-all duration-300 translate-y-2 opacity-0 text-xs font-medium`;
+
+            let icon = '';
+            if (type === 'success') {
+                toast.className += ' bg-emerald-500/10 border-emerald-500/20 text-emerald-400';
+                icon = `<svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+            } else if (type === 'error') {
+                toast.className += ' bg-rose-500/10 border-rose-500/20 text-rose-400';
+                icon = `<svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+            } else {
+                toast.className += ' bg-slate-800/80 border-slate-700/80 text-slate-300';
+                icon = `<svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+            }
+
+            toast.innerHTML = `${icon}<span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-1');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        function setConnectionStatus(state, label, type = 'info') {
+            const dot = document.getElementById('status-dot');
+            const txt = document.getElementById('status-text');
+            if (!dot || !txt) return;
+
+            txt.textContent = label.toUpperCase();
+
+            if (type === 'success') {
+                dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50';
+                txt.className = 'text-emerald-400 font-semibold';
+            } else if (type === 'error') {
+                dot.className = 'w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse shadow-sm shadow-rose-500/50';
+                txt.className = 'text-rose-400 font-semibold';
+            } else if (type === 'warning') {
+                dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse';
+                txt.className = 'text-amber-400 font-semibold';
+            } else if (type === 'p2p') {
+                dot.className = 'w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-sm shadow-indigo-500/50 animate-ping';
+                txt.className = 'text-indigo-400 font-bold';
+            } else {
+                dot.className = 'w-1.5 h-1.5 rounded-full bg-slate-500';
+                txt.className = 'text-slate-400';
+            }
+        }
+
+        function setDropzoneEnabled(enabled) {
+            document.getElementById('dropzone-disabled').classList.toggle('hidden', enabled);
+        }
+
+        function showUploadPanel(show) {
+            document.getElementById('upload-panel').classList.toggle('hidden', !show);
+        }
+
+        function showDownloadPanel(show) {
+            document.getElementById('download-panel').classList.toggle('hidden', !show);
+        }
+
+        function setUIState(connected) {
+            const btn = document.getElementById('connect-btn');
+            const input = document.getElementById('target-id');
+            if (!btn || !input) return;
+
+            if (connected) {
+                btn.textContent = 'Disconnect';
+                btn.className = 'bg-rose-600 hover:bg-rose-500 text-white px-5 py-2.5 rounded-lg font-semibold transition-colors font-sans text-xs tracking-wider uppercase whitespace-nowrap cursor-pointer';
+                input.disabled = true;
+            } else {
+                btn.textContent = 'Connect';
+                btn.className = 'bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-lg font-semibold transition-colors font-sans text-xs tracking-wider uppercase whitespace-nowrap cursor-pointer';
+                input.disabled = false;
+            }
+        }
+
+        function setWorkerStatus(type, idx, text, isIdle = false) {
+            const el = document.getElementById(`${type}-wrk-${idx}`);
+            if (!el) return;
+            const dot = el.querySelector('span:first-child');
+            const label = el.querySelector('span:last-child');
+
+            if (isIdle) {
+                dot.className = 'w-1.5 h-1.5 rounded-full bg-slate-600 shrink-0';
+                label.className = 'text-[9px] text-slate-500 truncate font-mono';
+                label.textContent = `Stream ${idx + 1}: Idle`;
+            } else {
+                dot.className = `w-1.5 h-1.5 rounded-full shrink-0 ${type === 'tx' ? 'bg-amber-400 animate-pulse' : 'bg-indigo-400 animate-pulse'}`;
+                label.className = `text-[9px] truncate font-mono ${type === 'tx' ? 'text-amber-300' : 'text-indigo-300'}`;
+                label.textContent = text;
+            }
+        }
+
+        // ─── Smooth Progress Tracking & Visual Block Grid ───────────────────────────
+        function getUploadProgress() {
+            if (!TX) return 0;
+            // Count unique DATA shards (index < K) sent per block.
+            // Parity shards are overhead — exclude them from the 0→100% mapping so
+            // that sending all K+M shards per block never pushes progress above 100%.
+            let dataShardsSent = 0;
+            for (let b = 0; b < TX.totalBlocks; b++) {
+                for (const idx of TX.shardsSentSet[b]) {
+                    if (idx < K) dataShardsSent++;
+                }
+            }
+            const totalDataShards = TX.totalBlocks * K;
+            return totalDataShards > 0 ? Math.min(dataShardsSent / totalDataShards, 1) : 0;
+        }
+
+        function getDownloadProgress() {
+            if (!RX) return 0;
+            const usefulShards = RX.blocks.reduce((sum, b) => {
+                if (b.reconstructed) return K;
+                return Math.min(b.received.size, K);
+            }, 0);
+            const totalRequiredShards = RX.totalBlocks * K;
+            return totalRequiredShards > 0 ? (usefulShards / totalRequiredShards) : 0;
+        }
+
+        let lastUploadUIUpdate = 0;
+        function updateUploadProgress(force = false) {
+            if (!TX) return;
+            const now = Date.now();
+            if (!force && now - lastUploadUIUpdate < 100) return;
+            lastUploadUIUpdate = now;
+
+            const progress = getUploadProgress();
+            const pct = Math.round(progress * 100);
+            document.getElementById('upload-progress-bar').style.width = `${pct}%`;
+            document.getElementById('upload-pct').textContent = `${pct}%`;
+
+            const bytesDone = Math.min(Math.round(progress * TX.fileSize), TX.fileSize);
+            document.getElementById('upload-bytes').textContent = `${fmtBytes(bytesDone)} / ${fmtBytes(TX.fileSize)}`;
+
+            const elapsed = (Date.now() - TX.t0) / 1000;
+            if (elapsed > 0.5 && bytesDone > 0) {
+                const rate = bytesDone / elapsed;
+                document.getElementById('upload-speed').textContent = `${fmtBytes(rate)}/s`;
+                const rem = TX.fileSize - bytesDone;
+                document.getElementById('upload-eta').textContent = rate > 0 ? `ETA ${fmtEta(rem / rate)}` : 'ETA --';
+            }
+        }
+
+        let lastDownloadUIUpdate = 0;
+        function updateDownloadProgress(force = false) {
+            if (!RX) return;
+            const now = Date.now();
+            if (!force && now - lastDownloadUIUpdate < 100) return;
+            lastDownloadUIUpdate = now;
+
+            const progress = getDownloadProgress();
+            const pct = Math.round(progress * 100);
+            document.getElementById('download-progress-bar').style.width = `${pct}%`;
+            document.getElementById('download-pct').textContent = `${pct}%`;
+
+            const bytesDone = Math.min(Math.round(progress * RX.fileSize), RX.fileSize);
+            document.getElementById('download-bytes').textContent = `${fmtBytes(bytesDone)} / ${fmtBytes(RX.fileSize)}`;
+
+            const elapsed = (Date.now() - RX.t0) / 1000;
+            if (elapsed > 0.5 && bytesDone > 0) {
+                const rate = bytesDone / elapsed;
+                document.getElementById('download-speed').textContent = `${fmtBytes(rate)}/s`;
+                const rem = RX.fileSize - bytesDone;
+                document.getElementById('download-eta').textContent = rate > 0 ? `ETA ${fmtEta(rem / rate)}` : 'ETA --';
+            }
+
+            const totalPkts = RX.pktsReceived + RX.pktsLost;
+            const lossRate = totalPkts > 0 ? Math.round((RX.pktsLost / totalPkts) * 100) : 0;
+            document.getElementById('download-loss').textContent = `${lossRate}% (${RX.pktsLost} pkts)`;
+        }
+
+        let lastUploadGridUpdate = 0;
+        function renderSenderGrid(force = false) {
+            if (!TX) return;
+            const now = Date.now();
+            if (!force && now - lastUploadGridUpdate < 150) return;
+            lastUploadGridUpdate = now;
+
+            const grid = document.getElementById('upload-grid');
+            if (!grid) return;
+
+            if (grid.children.length !== TX.totalBlocks) {
+                grid.innerHTML = '';
+                for (let i = 0; i < TX.totalBlocks; i++) {
+                    const d = document.createElement('div');
+                    d.id = `tx-block-${i}`;
+                    d.className = 'w-3.5 h-3.5 rounded-sm bg-slate-800 border border-slate-700/50 transition-all duration-300';
+                    grid.appendChild(d);
+                }
+            }
+
+            for (let i = 0; i < TX.totalBlocks; i++) {
+                const cell = document.getElementById(`tx-block-${i}`);
+                if (!cell) continue;
+                // Use the Set size for accurate unique-shard count in grid display
+                const uniqueSent = TX.shardsSentSet[i].size;
+                const totalReq = K + M;
+
+                if (uniqueSent >= totalReq) {
+                    cell.className = 'w-3.5 h-3.5 rounded-sm bg-amber-500 border border-amber-400/30 shadow-sm shadow-amber-500/10';
+                    cell.title = `Block ${i}: Sent (${uniqueSent}/${totalReq} shards)`;
+                } else if (uniqueSent > 0) {
+                    const pct = Math.round((uniqueSent / totalReq) * 100);
+                    cell.className = 'w-3.5 h-3.5 rounded-sm bg-amber-500/50 animate-pulse border border-amber-400/20';
+                    cell.title = `Block ${i}: Transmitting (${uniqueSent}/${totalReq} shards, ${pct}%)`;
+                } else {
+                    cell.className = 'w-3.5 h-3.5 rounded-sm bg-slate-800 border border-slate-700/50';
+                    cell.title = `Block ${i}: Queued`;
+                }
+            }
+        }
+
+        let lastDownloadGridUpdate = 0;
+        function renderReceiverGrid(force = false) {
+            if (!RX) return;
+            const now = Date.now();
+            if (!force && now - lastDownloadGridUpdate < 150) return;
+            lastDownloadGridUpdate = now;
+
+            const grid = document.getElementById('download-grid');
+            if (!grid) return;
+
+            if (grid.children.length !== RX.totalBlocks) {
+                grid.innerHTML = '';
+                for (let i = 0; i < RX.totalBlocks; i++) {
+                    const d = document.createElement('div');
+                    d.id = `rx-block-${i}`;
+                    d.className = 'w-3.5 h-3.5 rounded-sm bg-slate-800 border border-slate-700/50 transition-all duration-300';
+                    grid.appendChild(d);
+                }
+            }
+
+            for (let i = 0; i < RX.totalBlocks; i++) {
+                const cell = document.getElementById(`rx-block-${i}`);
+                if (!cell) continue;
+                const b = RX.blocks[i];
+
+                if (b.reconstructed) {
+                    cell.className = 'w-3.5 h-3.5 rounded-sm bg-emerald-500 border border-emerald-400/30 shadow-sm shadow-emerald-500/20';
+                    cell.title = `Block ${i}: Completed (Assembled & Verified)`;
+                } else if (b.received.size > 0) {
+                    const pct = Math.round((b.received.size / K) * 100);
+                    cell.className = 'w-3.5 h-3.5 rounded-sm bg-indigo-500 animate-pulse border border-indigo-400/30 shadow-sm shadow-indigo-500/10';
+                    cell.title = `Block ${i}: Receiving (${b.received.size}/${K} shards, ${pct}%)`;
+                } else {
+                    cell.className = 'w-3.5 h-3.5 rounded-sm bg-slate-800 border border-slate-700/50';
+                    cell.title = `Block ${i}: Pending`;
+                }
+            }
+        }
+
+        // ─── Session History Log ─────────────────────────────────────────────────────
+        function addHistoryEntry(session, type, status) {
+            const elapsed = (Date.now() - session.t0) / 1000;
+            const speed = elapsed > 0 ? (session.fileSize / elapsed) : 0;
+
+            const entry = {
+                id: session.sessionId,
+                fileName: session.fileName,
+                fileSize: session.fileSize,
+                type: type, // 'Upload' or 'Download'
+                status: status, // 'Completed' or 'Failed'
+                speed: speed,
+                duration: elapsed,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+            };
+
+            const idx = transferHistory.findIndex(h => h.id === entry.id);
+            if (idx !== -1) {
+                transferHistory[idx] = entry;
+            } else {
+                transferHistory.unshift(entry);
+            }
+
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const body = document.getElementById('history-body');
+            const emptyRow = document.getElementById('history-empty');
+            const countEl = document.getElementById('history-count');
+            if (!body || !countEl) return;
+
+            countEl.textContent = `${transferHistory.length} File${transferHistory.length === 1 ? '' : 's'}`;
+
+            const rows = body.querySelectorAll('.history-row');
+            rows.forEach(r => r.remove());
+
+            if (transferHistory.length === 0) {
+                if (emptyRow) emptyRow.classList.remove('hidden');
+                return;
+            }
+
+            if (emptyRow) emptyRow.classList.add('hidden');
+
+            transferHistory.forEach(h => {
+                const tr = document.createElement('tr');
+                tr.className = 'history-row border-b border-slate-800/40 hover:bg-slate-900/10 transition-colors';
+
+                const badgeClass = h.status === 'Completed'
+                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                    : 'bg-rose-500/10 text-rose-400 border border-rose-500/20';
+
+                const typeBadge = h.type === 'Upload'
+                    ? '<span class="text-amber-400">📤 Upload</span>'
+                    : '<span class="text-indigo-400">📥 Download</span>';
+
+                const speedText = h.status === 'Completed' ? `${fmtBytes(h.speed)}/s` : '--';
+                const durationText = h.status === 'Completed' ? `${h.duration.toFixed(1)}s` : '--';
+
+                tr.innerHTML = `
+                <td class="py-2.5 max-w-[180px] truncate pr-2 font-sans font-medium text-slate-200" title="${h.fileName}">${h.fileName}</td>
+                <td class="py-2.5 text-right text-slate-400">${fmtBytes(h.fileSize)}</td>
+                <td class="py-2.5 text-center text-[10px] font-sans">${typeBadge}</td>
+                <td class="py-2.5 text-right text-slate-400">${speedText}</td>
+                <td class="py-2.5 text-right text-slate-400">${durationText}</td>
+                <td class="py-2.5 text-right text-[10px] font-sans">
+                    <span class="px-2 py-0.5 rounded-full ${badgeClass}">${h.status}</span>
+                </td>
+            `;
+                body.appendChild(tr);
+            });
+        }
+
+        function fmtBytes(n) {
+            if (n < 1024) return `${n} B`;
+            if (n < 1 << 20) return `${(n / 1024).toFixed(1)} KB`;
+            if (n < 1 << 30) return `${(n / 1024 / 1024).toFixed(1)} MB`;
+            return `${(n / 1024 / 1024 / 1024).toFixed(2)} GB`;
+        }
+
+        function fmtEta(s) {
+            if (s < 60) return `${Math.ceil(s)}s`;
+            return `${Math.floor(s / 60)}m ${Math.ceil(s % 60)}s`;
+        }
+
+        // ─── WebSocket Signaling ─────────────────────────────────────────────────────
+        let wsReconnectDelay = 1000;   // Start at 1s, doubles each attempt, caps at 30s
+        let wsReconnectTimer = null;
+        let wsIntentionalClose = false;
+
+        function connectWS() {
+            if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
+            ws = new WebSocket(WS_URL);
+
+            ws.onopen = () => {
+                wsReconnectDelay = 1000; // Reset backoff on successful connect
+                setConnectionStatus('idle', 'Signaling Online', 'success');
+            };
+            ws.onerror = (e) => {
+                // onerror always precedes onclose — don't double-notify
+                console.warn('WS error', e);
+            };
+            ws.onclose = (ev) => {
+                ws = null;
+                if (wsIntentionalClose) { wsIntentionalClose = false; return; }
+
+                document.getElementById('my-id').textContent = 'RECONNECTING...';
+                setConnectionStatus('warning', `Signal Lost — Retry in ${(wsReconnectDelay / 1000).toFixed(0)}s`, 'warning');
+
+                // If a P2P session is active, keep TX/RX alive across the WS outage
+                // (the DataChannel is independent of the WS once established).
+                wsReconnectTimer = setTimeout(() => {
+                    wsReconnectDelay = Math.min(wsReconnectDelay * 2, 30000);
+                    connectWS();
+                }, wsReconnectDelay);
+            };
+            ws.onmessage = async (ev) => {
+                let msg; try { msg = JSON.parse(ev.data); } catch { return; }
+
+                if (msg.type === 'welcome') {
+                    localId = msg.id;
+                    document.getElementById('my-id').textContent = localId;
+                    setConnectionStatus('idle', 'Signaling Online', 'success');
+                    // If we were mid-transfer and just reconnected, the peer may re-offer
+                    // (caller side) or we can resume via the existing DataChannel.
+                }
+                if (msg.type === 'error') {
+                    // Only show the toast; don't nuke an active P2P session over a
+                    // signaling-layer error (e.g. target_not_found on a stale retry).
+                    showToast(`Signaling error: ${msg.reason}`, 'error');
+                }
+                if (msg.type === 'offer') {
+                    isCaller = false;
+                    targetId = msg.sender;
+                    document.getElementById('target-id').value = targetId;
+                    setUIState(true);
+                    resetPC(true);
+                    initPC();
+                    await pc.setRemoteDescription(new RTCSessionDescription(msg.data));
+                    srdDone = true; await drainIce();
+                    const ans = await pc.createAnswer();
+                    await pc.setLocalDescription(ans);
+                    wsSend({ target: targetId, type: 'answer', data: ans });
+                }
+                if (msg.type === 'answer') {
+                    if (!pc) return;
+                    await pc.setRemoteDescription(new RTCSessionDescription(msg.data));
+                    srdDone = true; await drainIce();
+                }
+                if (msg.type === 'candidate') {
+                    if (srdDone && pc) {
+                        try { await pc.addIceCandidate(new RTCIceCandidate(msg.data)); }
+                        catch (e) { console.warn('ICE add', e); }
+                    } else {
+                        iceBuf.push(msg.data);
+                    }
+                }
+            };
+        }
+
+        function wsSend(obj) {
+            if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(obj));
+            // If WS is down the signaling message is a no-op; the DataChannel
+            // carries all transfer state independently once P2P is established.
+        }
+
+        async function drainIce() {
+            for (const c of iceBuf) {
+                try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch { }
+            }
+            iceBuf = [];
+        }
+
+        // ─── WebRTC Setup ────────────────────────────────────────────────────────────
+        let iceDisconnectTimer = null; // Grace period before treating 'disconnected' as fatal
+
+        function clearIceDisconnectTimer() {
+            if (iceDisconnectTimer) { clearTimeout(iceDisconnectTimer); iceDisconnectTimer = null; }
+        }
+
+        function resetPC(keepSessions = false) {
+            clearIceDisconnectTimer();
+
+            if (pc) {
+                pc.onicecandidate = pc.ondatachannel = pc.oniceconnectionstatechange = null;
+                pc.close(); pc = null;
+            }
+
+            if (!keepSessions) {
+                if (TX && !TX.complete) {
+                    addHistoryEntry(TX, 'Upload', 'Failed');
+                    TX = null;
+                }
+                if (RX && !RX.complete) {
+                    addHistoryEntry(RX, 'Download', 'Failed');
+                    RX = null;
+                }
+            }
+
+            ctrlDC = null;
+            wrkDCs = [null, null, null];
+            iceBuf = [];
+            srdDone = false;
+
+            setDropzoneEnabled(false);
+            setUIState(false);
+
+            // Keep upload/download panels visible if sessions survived (keepSessions=true)
+            if (!keepSessions) {
+                showUploadPanel(false);
+                showDownloadPanel(false);
+            }
+
+            for (let i = 0; i < N_WORKERS; i++) {
+                setWorkerStatus('tx', i, 'Idle', true);
+                setWorkerStatus('rx', i, 'Idle', true);
+            }
+        }
+
+        async function attemptIceRestart() {
+            if (!pc || !isCaller) return; // Only the caller re-offers
+            try {
+                const offer = await pc.createOffer({ iceRestart: true });
+                await pc.setLocalDescription(offer);
+                wsSend({ target: targetId, type: 'offer', data: offer });
+                console.log('[ICE] Restarted ICE, sent new offer');
+            } catch (e) {
+                console.error('[ICE] Restart failed:', e);
+                resetPC(true);
+            }
+        }
+
+        function initPC() {
+            pc = new RTCPeerConnection({ iceServers: ICE });
+
+            pc.oniceconnectionstatechange = () => {
+                const st = pc.iceConnectionState;
+                console.log('[ICE]', st);
+
+                if (st === 'connected' || st === 'completed') {
+                    clearIceDisconnectTimer();
+                    setConnectionStatus('established', 'P2P Established', 'p2p');
+                    setDropzoneEnabled(true);
+                    setUIState(true);
+                    // If workers went idle during a reconnect, resume any pending TX
+                    if (TX && !TX.complete && TX.workerFree.every(f => f) && TX.queue.length > 0) {
+                        startSending();
+                    }
+                } else if (st === 'disconnected') {
+                    // ICE temporarily disconnected — common on mobile / NAT path refresh.
+                    // Wait 8 s for self-healing before attempting an ICE restart.
+                    setConnectionStatus('warning', 'Connection Unstable — Recovering...', 'warning');
+                    clearIceDisconnectTimer();
+                    iceDisconnectTimer = setTimeout(async () => {
+                        if (!pc) return;
+                        const cur = pc.iceConnectionState;
+                        if (cur === 'disconnected' || cur === 'failed') {
+                            showToast('Attempting ICE restart...', 'info');
+                            await attemptIceRestart();
+                        }
+                    }, 8000);
+                } else if (st === 'failed') {
+                    clearIceDisconnectTimer();
+                    showToast('ICE failed — attempting restart...', 'error');
+                    // Try an ICE restart first; if that fails within 10 s, hard-reset.
+                    attemptIceRestart().then(() => {
+                        iceDisconnectTimer = setTimeout(() => {
+                            if (pc && (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected')) {
+                                showToast('ICE restart failed — session dropped.', 'error');
+                                resetPC(false);
+                            }
+                        }, 10000);
+                    });
+                } else if (st === 'closed') {
+                    clearIceDisconnectTimer();
+                    resetPC(false);
+                }
+            };
+
+            pc.onicecandidate = e => {
+                if (e.candidate) wsSend({ target: targetId, type: 'candidate', data: e.candidate });
+            };
+            pc.ondatachannel = e => {
+                const ch = e.channel;
+                if (ch.label === 'ctrl') { setupCtrl(ch); return; }
+                if (ch.label.startsWith('wrk-')) {
+                    const idx = parseInt(ch.label.slice(4));
+                    setupWorkerRecv(ch, idx);
+                }
+            };
+        }
+
+        function setupCtrl(ch) {
+            ctrlDC = ch;
+            ctrlDC.onopen = () => {
+                clearIceDisconnectTimer();
+                setConnectionStatus('established', 'P2P Established', 'p2p');
+                setDropzoneEnabled(true);
+                setUIState(true);
+                showToast('P2P Connection Established!', 'success');
+            };
+            ctrlDC.onclose = () => {
+                // Ctrl channel closing is normal during ICE restart; the ICE state
+                // handler drives the session teardown. Only log here.
+                console.log('[ctrl] closed');
+            };
+            ctrlDC.onerror = (e) => {
+                console.warn('[ctrl] error', e);
+            };
+            ctrlDC.onmessage = e => handleCtrl(JSON.parse(e.data));
+        }
+
+        function ctrlSend(obj) {
+            if (ctrlDC && ctrlDC.readyState === 'open') ctrlDC.send(JSON.stringify(obj));
+        }
+
+        // ─── Control Message Dispatcher ──────────────────────────────────────────────
+        function handleCtrl(msg) {
+            switch (msg.type) {
+
+                case 'transfer-init': {
+                    RX = {
+                        sessionId: msg.sessionId,
+                        fileName: msg.fileName,
+                        fileSize: msg.fileSize,
+                        totalBlocks: msg.totalBlocks,
+                        blocks: Array.from({ length: msg.totalBlocks }, () => ({
+                            received: new Map(), // shardIdx -> Uint8Array
+                            reconstructed: false,
+                            dataShards: null
+                        })),
+                        reconstructedCount: 0,
+                        pktsReceived: 0,
+                        pktsLost: 0,
+                        t0: Date.now(),
+                        complete: false
+                    };
+
+                    showDownloadPanel(true);
+                    document.getElementById('download-filename').textContent = msg.fileName;
+                    renderReceiverGrid(true);
+                    updateDownloadProgress(true);
+
+                    showToast(`Receiving: ${msg.fileName}`, 'info');
+                    ctrlSend({ type: 'transfer-ready', sessionId: msg.sessionId });
+                    break;
+                }
+
+                case 'transfer-ready': {
+                    if (!TX) return;
+                    TX.t0 = Date.now();
+                    TX.pktsSent = 0;
+                    renderSenderGrid(true);
+                    updateUploadProgress(true);
+                    startSending();
+                    break;
+                }
+
+                case 'sent-all': {
+                    if (!RX) return;
+                    const missing = [];
+                    for (let b = 0; b < RX.totalBlocks; b++) {
+                        const block = RX.blocks[b];
+                        if (!block.reconstructed) {
+                            const haveIndices = Array.from(block.received.keys());
+                            const need = K - block.received.size;
+                            missing.push({ blockIdx: b, need, have: haveIndices });
+                        }
+                    }
+
+                    if (missing.length === 0) {
+                        assembleAndDownload();
+                        ctrlSend({ type: 'transfer-complete', sessionId: RX.sessionId });
+                    } else {
+                        const lostCount = missing.reduce((sum, item) => sum + item.need, 0);
+                        RX.pktsLost += lostCount;
+                        ctrlSend({ type: 'request-missing', sessionId: RX.sessionId, missing });
+                    }
+                    break;
+                }
+
+                case 'request-missing': {
+                    if (!TX) return;
+                    for (const item of msg.missing) {
+                        const { blockIdx, need, have } = item;
+                        const candidates = Array.from({ length: K + M }, (_, idx) => idx)
+                            .filter(idx => !have.includes(idx));
+
+                        for (let i = 0; i < Math.min(need, candidates.length); i++) {
+                            const shardIdx = candidates[i];
+                            TX.queue.push({ blockIdx, shardIdx });
+                        }
+                    }
+                    startSending();
+                    break;
+                }
+
+                case 'transfer-complete': {
+                    if (!TX) return;
+                    TX.complete = true;
+                    addHistoryEntry(TX, 'Upload', 'Completed');
+                    showToast(`Upload complete: ${TX.fileName}`, 'success');
+
+                    document.getElementById('upload-pct').textContent = '100%';
+                    document.getElementById('upload-progress-bar').style.width = '100%';
+                    document.getElementById('upload-bytes').textContent = `${fmtBytes(TX.fileSize)} / ${fmtBytes(TX.fileSize)}`;
+
+                    for (let i = 0; i < N_WORKERS; i++) {
+                        setWorkerStatus('tx', i, 'Done', false);
+                        setTimeout(() => {
+                            if (!TX || TX.complete) setWorkerStatus('tx', i, 'Idle', true);
+                        }, 3000);
+                    }
+                    break;
+                }
+            }
+        }
+
+        // ─── Sender Transmission Queue & Workers ─────────────────────────────────────
+        function startSending() {
+            for (let i = 0; i < N_WORKERS; i++) {
+                if (TX.workerFree[i]) {
+                    dispatchWorker(i);
+                }
+            }
+        }
+
+        async function dispatchWorker(wi) {
+            if (!TX) return;
+            TX.workerFree[wi] = false;
+
+            const dc = wrkDCs[wi];
+            if (!dc || dc.readyState !== 'open') {
+                TX.workerFree[wi] = true;
+                return;
+            }
+
+            while (TX.queue.length > 0) {
+                if (dc.bufferedAmount > 1024 * 1024) {
+                    dc.bufferedAmountLowThreshold = 256 * 1024;
+                    dc.onbufferedamountlow = () => {
+                        dc.onbufferedamountlow = null;
+                        dispatchWorker(wi);
+                    };
+                    return;
+                }
+
+                const task = TX.queue.shift();
+                const { blockIdx, shardIdx } = task;
+
+                setWorkerStatus('tx', wi, `Block ${blockIdx} (Shard ${shardIdx + 1}/${K + M})`);
+
+                if (!TX.blockShards[blockIdx]) {
+                    const offset = blockIdx * BLOCK_SIZE;
+                    const blockBuffer = TX.ab.slice(offset, offset + BLOCK_SIZE);
+
+                    const dataShards = [];
+                    for (let s = 0; s < K; s++) {
+                        const shardOffset = s * SHARD_SIZE;
+                        const shardBuf = new Uint8Array(SHARD_SIZE);
+                        if (shardOffset < blockBuffer.byteLength) {
+                            const len = Math.min(SHARD_SIZE, blockBuffer.byteLength - shardOffset);
+                            shardBuf.set(new Uint8Array(blockBuffer, shardOffset, len));
+                        }
+                        dataShards.push(shardBuf);
+                    }
+
+                    const parityShards = encodeBlock(dataShards);
+                    TX.blockShards[blockIdx] = dataShards.concat(parityShards);
+                }
+
+                const rawData = TX.blockShards[blockIdx][shardIdx];
+
+                const packet = new Uint8Array(5 + SHARD_SIZE);
+                const view = new DataView(packet.buffer);
+                view.setUint32(0, blockIdx, false);
+                packet[4] = shardIdx;
+                packet.set(rawData, 5);
+
+                dc.send(packet.buffer);
+                TX.pktsSent++;
+                // Track per-block unique shard indices to cap at K+M and prevent >100%
+                TX.shardsSentSet[blockIdx].add(shardIdx);
+
+                updateUploadProgress();
+                renderSenderGrid();
+
+                await new Promise(r => setTimeout(r, 0));
+            }
+
+            TX.workerFree[wi] = true;
+            setWorkerStatus('tx', wi, 'Idle', true);
+
+            const allIdle = TX.workerFree.every(free => free);
+            if (allIdle && TX.queue.length === 0) {
+                setTimeout(() => {
+                    if (TX && TX.queue.length === 0) {
+                        ctrlSend({ type: 'sent-all', sessionId: TX.sessionId });
+                    }
+                }, 100);
+            }
+        }
+
+        // ─── Callee Receiver Worker DataChannels ─────────────────────────────────────
+        function setupWorkerRecv(ch, wi) {
+            wrkDCs[wi] = ch;
+            ch.binaryType = 'arraybuffer';
+
+            ch.onmessage = (ev) => {
+                if (!RX) return;
+                const buf = ev.data;
+                if (buf.byteLength < 5) return;
+
+                const view = new DataView(buf);
+                const blockIdx = view.getUint32(0, false);
+                const shardIdx = view.getUint8(4);
+                const shardData = new Uint8Array(buf, 5);
+
+                if (blockIdx >= RX.totalBlocks) return;
+                const block = RX.blocks[blockIdx];
+                if (block.reconstructed) return;
+
+                RX.pktsReceived++;
+
+                if (!block.received.has(shardIdx)) {
+                    block.received.set(shardIdx, shardData);
+                    setWorkerStatus('rx', wi, `Block ${blockIdx} (Shard ${shardIdx + 1}/${K + M})`);
+
+                    updateDownloadProgress();
+                    renderReceiverGrid();
+                }
+
+                if (block.received.size >= K) {
+                    try {
+                        const shards = Array.from(block.received.entries()).map(([idx, data]) => ({ idx, data }));
+                        block.dataShards = reconstructBlock(shards);
+                        block.reconstructed = true;
+                        block.received.clear();
+
+                        RX.reconstructedCount++;
+
+                        updateDownloadProgress(true);
+                        renderReceiverGrid(true);
+                    } catch (e) {
+                        console.error("Reconstruction failed for block", blockIdx, e);
+                    }
+                }
+            };
+        }
+
+        // ─── Receiver Final Assembler ────────────────────────────────────────────────
+        function assembleAndDownload() {
+            if (!RX) return;
+
+            const fileBuffers = [];
+            for (let b = 0; b < RX.totalBlocks; b++) {
+                const block = RX.blocks[b];
+                for (let s = 0; s < K; s++) {
+                    fileBuffers.push(block.dataShards[s]);
+                }
+            }
+
+            const merged = new Uint8Array(RX.totalBlocks * BLOCK_SIZE);
+            let cursor = 0;
+            for (const buf of fileBuffers) {
+                merged.set(buf, cursor);
+                cursor += buf.byteLength;
+            }
+
+            const finalData = merged.subarray(0, RX.fileSize);
+            const blob = new Blob([finalData]);
+            const url = URL.createObjectURL(blob);
+            const a = Object.assign(document.createElement('a'), { href: url, download: RX.fileName });
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 15000);
+
+            showToast(`Download complete: ${RX.fileName}`, 'success');
+
+            RX.complete = true;
+            addHistoryEntry(RX, 'Download', 'Completed');
+
+            document.getElementById('download-pct').textContent = '100%';
+            document.getElementById('download-progress-bar').style.width = '100%';
+            document.getElementById('download-bytes').textContent = `${fmtBytes(RX.fileSize)} / ${fmtBytes(RX.fileSize)}`;
+
+            for (let i = 0; i < N_WORKERS; i++) {
+                setWorkerStatus('rx', i, 'Done', false);
+                setTimeout(() => {
+                    if (!RX || RX.complete) setWorkerStatus('rx', i, 'Idle', true);
+                }, 3000);
+            }
+        }
+
+        // ─── Connect Button ──────────────────────────────────────────────────────────
+        document.getElementById('connect-btn').onclick = async () => {
+            if (pc) {
+                // Intentional disconnect — clear sessions and close PC
+                clearIceDisconnectTimer();
+                resetPC(false);
+                setUIState(false);
+                setDropzoneEnabled(false);
+                setConnectionStatus('idle', 'Signaling Online', 'success');
+                showToast('Disconnected from peer', 'info');
+                return;
+            }
+
+            targetId = document.getElementById('target-id').value.toUpperCase().trim();
+            if (targetId.length !== 5) { showToast('Enter a valid 5-char peer ID.', 'error'); return; }
+
+            isCaller = true;
+            resetPC(false);
+            initPC();
+
+            ctrlDC = pc.createDataChannel('ctrl', { ordered: true });
+            setupCtrl(ctrlDC);
+
+            for (let i = 0; i < N_WORKERS; i++) {
+                const dc = pc.createDataChannel(`wrk-${i}`, { ordered: false, maxRetransmits: 0 });
+                setupWorkerRecv(dc, i);
+                wrkDCs[i] = dc;
+            }
+
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            wsSend({ target: targetId, type: 'offer', data: offer });
+
+            setConnectionStatus('connecting', 'Connecting to Peer...', 'warning');
+            setUIState(true);
+        };
+
+        // ─── File Select & Drop Event Handlers ───────────────────────────────────────
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('file-input');
+
+        dropzone.onclick = () => {
+            if (!ctrlDC || ctrlDC.readyState !== 'open') return;
+            fileInput.click();
+        };
+
+        dropzone.ondragover = (e) => {
+            e.preventDefault();
+            if (!ctrlDC || ctrlDC.readyState !== 'open') return;
+            dropzone.classList.remove('border-slate-800');
+            dropzone.classList.add('border-indigo-500', 'bg-indigo-500/[0.03]');
+        };
+
+        dropzone.ondragleave = () => {
+            dropzone.classList.add('border-slate-800');
+            dropzone.classList.remove('border-indigo-500', 'bg-indigo-500/[0.03]');
+        };
+
+        dropzone.ondrop = (e) => {
+            e.preventDefault();
+            dropzone.classList.add('border-slate-800');
+            dropzone.classList.remove('border-indigo-500', 'bg-indigo-500/[0.03]');
+            if (!ctrlDC || ctrlDC.readyState !== 'open') return;
+
+            const file = e.dataTransfer.files[0];
+            handleFileSelect(file);
+        };
+
+        fileInput.onchange = (e) => {
+            const file = e.target.files[0];
+            handleFileSelect(file);
+            fileInput.value = '';
+        };
+
+        async function handleFileSelect(file) {
+            if (!file) return;
+            if (!ctrlDC || ctrlDC.readyState !== 'open') {
+                showToast('Control channel not ready.', 'error');
+                return;
+            }
+            for (let i = 0; i < N_WORKERS; i++) {
+                if (!wrkDCs[i] || wrkDCs[i].readyState !== 'open') {
+                    showToast(`Stream worker ${i + 1} not open.`, 'error');
+                    return;
+                }
+            }
+
+            const ab = await file.arrayBuffer();
+            const totalBlocks = Math.ceil(file.size / BLOCK_SIZE);
+            const sessionId = crypto.randomUUID();
+
+            const queue = [];
+            for (let b = 0; b < totalBlocks; b++) {
+                for (let s = 0; s < K + M; s++) {
+                    queue.push({ blockIdx: b, shardIdx: s });
+                }
+            }
+
+            TX = {
+                sessionId,
+                fileName: file.name,
+                fileSize: file.size,
+                ab,
+                totalBlocks,
+                blockShards: Array(totalBlocks).fill(null),
+                queue,
+                workerFree: Array(N_WORKERS).fill(true),
+                // Use a Set per block so re-queued ARQ shards never double-count
+                shardsSentSet: Array.from({ length: totalBlocks }, () => new Set()),
+                // Keep shardsSentCount for grid rendering (visual purposes only)
+                shardsSentCount: new Uint32Array(totalBlocks),
+                t0: Date.now(),
+                pktsSent: 0,
+                complete: false
+            };
+
+            showUploadPanel(true);
+            document.getElementById('upload-filename').textContent = file.name;
+            renderSenderGrid(true);
+            updateUploadProgress(true);
+
+            ctrlSend({
+                type: 'transfer-init',
+                sessionId,
+                fileName: file.name,
+                fileSize: file.size,
+                totalBlocks,
+            });
+
+            showToast('Initiating file transfer...', 'info');
+        }
+
+        // ─── Copy Device ID ──────────────────────────────────────────────────────────
+        document.getElementById('copy-btn').onclick = () => {
+            if (localId && localId !== 'Disconnected' && localId !== 'Connecting...') {
+                navigator.clipboard.writeText(localId)
+                    .then(() => showToast('Device ID copied to clipboard!', 'success'))
+                    .catch(() => showToast('Failed to copy Device ID', 'error'));
+            }
+        };
+
+        // ─── Boot ────────────────────────────────────────────────────────────────────
+        connectWS();
+
+        // Reconnect WS when the page regains visibility (tab switch / screen on)
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && (!ws || ws.readyState === WebSocket.CLOSED)) {
+                clearTimeout(wsReconnectTimer);
+                wsReconnectDelay = 1000;
+                connectWS();
+            }
+        });
+    </script>
+</body>
+
+</html>

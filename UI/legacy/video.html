@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AetherDrop - P2P Video Call & Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+
+<body class="bg-[#0B0F19] text-slate-100 min-h-screen p-4 md:p-8 font-sans selection:bg-indigo-500/30 selection:text-indigo-200">
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none select-none opacity-40">
+        <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-900/20 blur-[120px]"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-900/20 blur-[120px]"></div>
+    </div>
+
+    <div class="max-w-5xl mx-auto space-y-6 relative">
+        <!-- Top Header Navigation -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900/40 backdrop-blur-md border border-slate-800/80 rounded-2xl p-5">
+            <div class="flex items-center justify-between w-full md:w-auto gap-4">
+                <div class="space-y-1">
+                    <h1 class="text-xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent font-display tracking-tight flex items-center gap-2">
+                        <svg class="w-6 h-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        AetherDrop Calls
+                    </h1>
+                    <p class="text-xs text-slate-400 font-sans">P2P Video Calls, Chat & Screen Sharing</p>
+                </div>
+            </div>
+
+            <nav class="flex items-center gap-1.5 bg-slate-950/60 border border-slate-800/80 p-1.5 rounded-xl">
+                <a href="index.html" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-colors flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    File Drop
+                </a>
+                <a href="deepseek-calls.html" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white shadow-sm flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Video Call & Chat
+                </a>
+            </nav>
+
+            <div class="flex items-center gap-2 px-3 py-1.5 bg-slate-950/60 border border-slate-800/80 rounded-full text-[10px] font-mono font-semibold">
+                <span id="status-dot" class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                <span id="status-text" class="text-amber-400 tracking-wider">CONNECTING SIGNAL...</span>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Left Panel: Controls & Identity -->
+            <div class="lg:col-span-4 space-y-6">
+                <!-- Connection Settings -->
+                <div class="bg-slate-900/40 backdrop-blur-md border border-slate-800/80 rounded-2xl p-5 space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-300 font-display flex items-center gap-2">
+                        <svg class="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Connection Settings
+                    </h3>
+
+                    <div class="flex items-center justify-between bg-slate-950/60 border border-slate-800/60 rounded-xl p-3 font-mono">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] text-slate-500 font-sans font-medium uppercase tracking-wider">Your Connection Key</span>
+                            <span id="my-id" class="text-lg font-bold text-slate-200 tracking-wider">CONNECTING...</span>
+                        </div>
+                        <button id="copy-btn" class="p-2 hover:bg-slate-800/60 rounded-lg transition-colors text-slate-400 hover:text-slate-200" title="Copy Key">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-medium text-slate-400 font-sans">Target Connection Key</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="target-id" class="bg-slate-950/60 border border-slate-800/80 focus:border-indigo-500/80 focus:ring-1 focus:ring-indigo-500/50 p-2.5 rounded-lg w-full text-sm font-mono uppercase tracking-widest text-slate-200 outline-none transition-all placeholder-slate-600" placeholder="ENTER 5-CHAR KEY" maxlength="5">
+                            <button id="connect-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-lg font-semibold transition-colors font-sans text-xs tracking-wider uppercase whitespace-nowrap">Connect</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Call Controls -->
+                <div id="call-controls" class="hidden bg-slate-900/40 backdrop-blur-md border border-slate-800/80 rounded-2xl p-5 space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-300 font-display flex items-center gap-2">
+                        <svg class="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                        </svg>
+                        Call Controls
+                    </h3>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="toggle-audio-btn" class="bg-slate-950/60 border border-slate-800/60 hover:border-indigo-500/50 rounded-xl p-3 text-center transition-all group">
+                            <svg id="audio-icon-on" class="w-5 h-5 mx-auto mb-1 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                            </svg>
+                            <svg id="audio-icon-off" class="w-5 h-5 mx-auto mb-1 text-rose-400 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                            </svg>
+                            <span class="text-[10px] font-semibold text-slate-400 group-hover:text-slate-200">Mic</span>
+                        </button>
+
+                        <button id="toggle-video-btn" class="bg-slate-950/60 border border-slate-800/60 hover:border-indigo-500/50 rounded-xl p-3 text-center transition-all group">
+                            <svg id="video-icon-on" class="w-5 h-5 mx-auto mb-1 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            <svg id="video-icon-off" class="w-5 h-5 mx-auto mb-1 text-rose-400 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                            </svg>
+                            <span class="text-[10px] font-semibold text-slate-400 group-hover:text-slate-200">Camera</span>
+                        </button>
+
+                        <button id="toggle-screen-btn" class="bg-slate-950/60 border border-slate-800/60 hover:border-indigo-500/50 rounded-xl p-3 text-center transition-all group">
+                            <svg class="w-5 h-5 mx-auto mb-1 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <span id="screen-label" class="text-[10px] font-semibold text-slate-400 group-hover:text-slate-200">Share Screen</span>
+                        </button>
+
+                        <button id="hangup-btn" class="bg-rose-600/20 border border-rose-500/30 hover:bg-rose-600/30 rounded-xl p-3 text-center transition-all group">
+                            <svg class="w-5 h-5 mx-auto mb-1 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M5 3a2 2 0 00-2 2v1c0 8.284 6.716 15 15 15h1a2 2 0 002-2v-3.28a1 1 0 00-.684-.948l-4.493-1.498a1 1 0 00-1.21.502l-1.13 2.257a11.042 11.042 0 01-5.516-5.517l2.257-1.128a1 1 0 00.502-1.21L9.228 3.683A1 1 0 008.279 3H5z" />
+                            </svg>
+                            <span class="text-[10px] font-semibold text-rose-400">Hang Up</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Peer Info -->
+                <div class="bg-slate-900/40 backdrop-blur-md border border-slate-800/80 rounded-2xl p-5 space-y-3">
+                    <h3 class="text-sm font-semibold text-slate-300 font-display flex items-center gap-2">
+                        <svg class="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Call Info
+                    </h1>
+                    <div class="grid grid-cols-2 gap-3 text-[11px] font-mono">
+                        <div class="bg-slate-950/40 p-2.5 rounded-lg border border-slate-800/60">
+                            <div class="text-slate-500 font-sans">Peer Status</div>
+                            <div id="peer-status" class="text-slate-500 font-bold mt-0.5">Not Connected</div>
+                        </div>
+                        <div class="bg-slate-950/40 p-2.5 rounded-lg border border-slate-800/60">
+                            <div class="text-slate-500 font-sans">Call Duration</div>
+                            <div id="call-duration" class="text-slate-300 font-bold mt-0.5">--:--</div>
+                        </div>
+                        <div class="bg-slate-950/40 p-2.5 rounded-lg border border-slate-800/60">
+                            <div class="text-slate-500 font-sans">Connection</div>
+                            <div id="conn-type" class="text-indigo-400 font-bold mt-0.5">WebRTC P2P</div>
+                        </div>
+                        <div class="bg-slate-950/40 p-2.5 rounded-lg border border-slate-800/60">
+                            <div class="text-slate-500 font-sans">Chat Messages</div>
+                            <div id="msg-count" class="text-slate-300 font-bold mt-0.5">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Video + Chat -->
+            <div class="lg:col-span-8 space-y-6">
+                <!-- Video Grid -->
+                <div class="bg-slate-900/40 backdrop-blur-md border border-slate-800/80 rounded-2xl p-5 space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-300 font-display flex items-center gap-2">
+                        <svg class="w-4 h-4 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        Video Streams
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Local Video -->
+                        <div class="relative bg-slate-950 rounded-xl border border-slate-800/80 overflow-hidden aspect-video">
+                            <video id="local-video" autoplay muted playsinline class="w-full h-full object-cover"></video>
+                            <div id="local-placeholder" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-950">
+                                <svg class="w-10 h-10 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                                <p class="text-xs text-slate-500 mt-2 font-sans">Your Camera</p>
+                            </div>
+                            <span class="absolute bottom-2 left-2 text-[9px] bg-slate-950/80 text-indigo-400 px-2 py-0.5 rounded-full border border-slate-700/60 font-semibold">YOU</span>
+                        </div>
+
+                        <!-- Remote Video -->
+                        <div class="relative bg-slate-950 rounded-xl border border-slate-800/80 overflow-hidden aspect-video">
+                            <video id="remote-video" autoplay playsinline class="w-full h-full object-cover"></video>
+                            <div id="remote-placeholder" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-950">
+                                <svg class="w-10 h-10 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <p class="text-xs text-slate-500 mt-2 font-sans">Waiting for Peer...</p>
+                            </div>
+                            <span class="absolute bottom-2 left-2 text-[9px] bg-slate-950/80 text-purple-400 px-2 py-0.5 rounded-full border border-slate-700/60 font-semibold" id="remote-label">PEER</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Panel -->
+                <div class="bg-slate-900/40 backdrop-blur-md border border-slate-800/80 rounded-2xl p-5 space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-300 font-display flex items-center gap-2">
+                        <svg class="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                        Chat
+                    </h3>
+
+                    <div id="chat-messages" class="bg-slate-950/60 border border-slate-800/60 rounded-xl p-4 h-64 overflow-y-auto space-y-3 flex flex-col">
+                        <div id="chat-empty" class="flex-1 flex flex-col items-center justify-center text-slate-500 text-xs font-sans italic">
+                            <svg class="w-6 h-6 mb-2 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                            Connect to a peer to start chatting
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <input type="text" id="chat-input" class="bg-slate-950/60 border border-slate-800/80 focus:border-indigo-500/80 focus:ring-1 focus:ring-indigo-500/50 p-2.5 rounded-lg flex-1 text-sm text-slate-200 outline-none transition-all placeholder-slate-600 font-sans" placeholder="Type a message..." disabled>
+                        <button id="chat-send-btn" class="bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-500 text-white px-4 py-2.5 rounded-lg font-semibold transition-colors font-sans text-xs tracking-wider uppercase" disabled>
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
+
+    <script>
+        const WS_URL = 'wss://p2p.devh.in/ws';
+        const ICE = [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+        ];
+
+        let localId = '', targetId = '';
+        let pc = null, ws = null;
+        let isCaller = false;
+        let iceBuf = [], srdDone = false;
+        let localStream = null;
+        let chatMsgCount = 0;
+        let callStartTime = null;
+        let callTimer = null;
+        let audioEnabled = true;
+        let videoEnabled = true;
+        let screenSharing = false;
+
+        let ctrlDC = null;
+        let chatDC = null;
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = `flex items-center gap-2 px-4 py-3 rounded-lg border shadow-lg backdrop-blur-md transition-all duration-300 translate-y-2 opacity-0 text-xs font-medium`;
+            let icon = '';
+            if (type === 'success') {
+                toast.className += ' bg-emerald-500/10 border-emerald-500/20 text-emerald-400';
+                icon = `<svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+            } else if (type === 'error') {
+                toast.className += ' bg-rose-500/10 border-rose-500/20 text-rose-400';
+                icon = `<svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+            } else {
+                toast.className += ' bg-slate-800/80 border-slate-700/80 text-slate-300';
+                icon = `<svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+            }
+            toast.innerHTML = `${icon}<span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+            setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-1'); setTimeout(() => toast.remove(), 300); }, 4000);
+        }
+
+        function setConnectionStatus(state, label, type = 'info') {
+            const dot = document.getElementById('status-dot');
+            const txt = document.getElementById('status-text');
+            if (!dot || !txt) return;
+            txt.textContent = label.toUpperCase();
+            if (type === 'success') { dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50'; txt.className = 'text-emerald-400 font-semibold'; }
+            else if (type === 'error') { dot.className = 'w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse shadow-sm shadow-rose-500/50'; txt.className = 'text-rose-400 font-semibold'; }
+            else if (type === 'warning') { dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse'; txt.className = 'text-amber-400 font-semibold'; }
+            else if (type === 'p2p') { dot.className = 'w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-sm shadow-indigo-500/50 animate-ping'; txt.className = 'text-indigo-400 font-bold'; }
+            else { dot.className = 'w-1.5 h-1.5 rounded-full bg-slate-500'; txt.className = 'text-slate-400'; }
+        }
+
+        function setUIState(connected) {
+            const btn = document.getElementById('connect-btn');
+            const input = document.getElementById('target-id');
+            const callCtrls = document.getElementById('call-controls');
+            if (!btn || !input) return;
+            if (connected) {
+                btn.textContent = 'Disconnect';
+                btn.className = 'bg-rose-600 hover:bg-rose-500 text-white px-5 py-2.5 rounded-lg font-semibold transition-colors font-sans text-xs tracking-wider uppercase whitespace-nowrap cursor-pointer';
+                input.disabled = true;
+                if (callCtrls) callCtrls.classList.remove('hidden');
+            } else {
+                btn.textContent = 'Connect';
+                btn.className = 'bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-lg font-semibold transition-colors font-sans text-xs tracking-wider uppercase whitespace-nowrap cursor-pointer';
+                input.disabled = false;
+                if (callCtrls) callCtrls.classList.add('hidden');
+            }
+        }
+
+        function startCallTimer() {
+            callStartTime = Date.now();
+            if (callTimer) clearInterval(callTimer);
+            callTimer = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
+                const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+                const s = String(elapsed % 60).padStart(2, '0');
+                document.getElementById('call-duration').textContent = `${m}:${s}`;
+            }, 1000);
+        }
+
+        function stopCallTimer() {
+            if (callTimer) { clearInterval(callTimer); callTimer = null; }
+            document.getElementById('call-duration').textContent = '--:--';
+        }
+
+        async function getLocalMedia() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                const localVideo = document.getElementById('local-video');
+                localVideo.srcObject = localStream;
+                document.getElementById('local-placeholder').classList.add('hidden');
+                return true;
+            } catch (e) {
+                showToast('Camera/mic access denied. Trying audio only...', 'error');
+                try {
+                    localStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+                    return true;
+                } catch (e2) {
+                    showToast('No media devices available.', 'error');
+                    return false;
+                }
+            }
+        }
+
+        function addLocalTracksToPC() {
+            if (!pc || !localStream) return;
+            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+        }
+
+        function toggleAudio() {
+            if (!localStream) return;
+            audioEnabled = !audioEnabled;
+            localStream.getAudioTracks().forEach(t => t.enabled = audioEnabled);
+            document.getElementById('audio-icon-on').classList.toggle('hidden', !audioEnabled);
+            document.getElementById('audio-icon-off').classList.toggle('hidden', audioEnabled);
+            showToast(audioEnabled ? 'Mic unmuted' : 'Mic muted', 'info');
+        }
+
+        function toggleVideo() {
+            if (!localStream) return;
+            videoEnabled = !videoEnabled;
+            localStream.getVideoTracks().forEach(t => t.enabled = videoEnabled);
+            document.getElementById('video-icon-on').classList.toggle('hidden', !videoEnabled);
+            document.getElementById('video-icon-off').classList.toggle('hidden', videoEnabled);
+            document.getElementById('local-placeholder').classList.toggle('hidden', videoEnabled);
+            showToast(videoEnabled ? 'Camera on' : 'Camera off', 'info');
+        }
+
+        async function toggleScreenShare() {
+            if (screenSharing) {
+                stopScreenShare();
+                return;
+            }
+            try {
+                const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+                const screenTrack = screenStream.getVideoTracks()[0];
+                if (!screenTrack) return;
+                screenTrack.onended = () => stopScreenShare();
+                if (!pc) return;
+                const sender = pc.getSenders().find(s => s.track && s.track.kind === 'video');
+                if (sender) {
+                    await sender.replaceTrack(screenTrack);
+                }
+                screenStream._screenTrack = screenTrack;
+                screenStream._savedTrack = sender ? sender.track : null;
+                localStream._screenStream = screenStream;
+                screenSharing = true;
+                document.getElementById('screen-label').textContent = 'Stop Sharing';
+                document.getElementById('toggle-screen-btn').classList.add('bg-purple-600/20', 'border-purple-500/50');
+                showToast('Screen sharing started', 'success');
+            } catch (e) {
+                showToast('Screen share denied', 'error');
+            }
+        }
+
+        function stopScreenShare() {
+            if (!screenSharing) return;
+            const ss = localStream && localStream._screenStream;
+            if (ss && ss._screenTrack) ss._screenTrack.stop();
+            if (ss && ss._savedTrack && pc) {
+                const sender = pc.getSenders().find(s => s.track && s.track.kind === 'video');
+                if (sender) sender.replaceTrack(ss._savedTrack);
+            }
+            screenSharing = false;
+            document.getElementById('screen-label').textContent = 'Share Screen';
+            document.getElementById('toggle-screen-btn').classList.remove('bg-purple-600/20', 'border-purple-500/50');
+            showToast('Screen sharing stopped', 'info');
+        }
+
+        function hangUp() {
+            stopCallTimer();
+            stopScreenShare();
+            resetPC();
+            setUIState(false);
+            setConnectionStatus('idle', 'Signaling Online', 'success');
+            document.getElementById('peer-status').textContent = 'Not Connected';
+            document.getElementById('chat-input').disabled = true;
+            document.getElementById('chat-send-btn').disabled = true;
+            document.getElementById('call-controls').classList.add('hidden');
+            audioEnabled = true; videoEnabled = true;
+            document.getElementById('audio-icon-on').classList.remove('hidden');
+            document.getElementById('audio-icon-off').classList.add('hidden');
+            document.getElementById('video-icon-on').classList.remove('hidden');
+            document.getElementById('video-icon-off').classList.add('hidden');
+            showToast('Call ended', 'info');
+        }
+
+        function resetPC() {
+            stopCallTimer();
+            if (localStream) {
+                localStream.getTracks().forEach(t => t.stop());
+                localStream = null;
+            }
+            document.getElementById('local-video').srcObject = null;
+            document.getElementById('local-placeholder').classList.remove('hidden');
+            document.getElementById('remote-video').srcObject = null;
+            document.getElementById('remote-placeholder').classList.remove('hidden');
+            if (pc) {
+                pc.onicecandidate = pc.ontrack = pc.ondatachannel = pc.oniceconnectionstatechange = null;
+                pc.close(); pc = null;
+            }
+            ctrlDC = null; chatDC = null;
+            iceBuf = []; srdDone = false;
+        }
+
+        function initPC() {
+            pc = new RTCPeerConnection({ iceServers: ICE });
+
+            pc.oniceconnectionstatechange = () => {
+                const st = pc.iceConnectionState;
+                if (st === 'connected' || st === 'completed') {
+                    setConnectionStatus('established', 'P2P Established', 'p2p');
+                    document.getElementById('peer-status').textContent = 'Connected';
+                    document.getElementById('peer-status').className = 'text-emerald-400 font-bold mt-0.5';
+                    if (!callStartTime) startCallTimer();
+                } else if (st === 'disconnected') {
+                    setConnectionStatus('warning', 'Connection Unstable', 'warning');
+                } else if (st === 'failed') {
+                    showToast('Connection failed', 'error');
+                    hangUp();
+                } else if (st === 'closed') {
+                    resetPC(); setUIState(false);
+                }
+            };
+
+            pc.onicecandidate = e => {
+                if (e.candidate) wsSend({ target: targetId, type: 'candidate', data: e.candidate });
+            };
+
+            pc.ontrack = e => {
+                const remoteVideo = document.getElementById('remote-video');
+                if (remoteVideo.srcObject !== e.streams[0]) {
+                    remoteVideo.srcObject = e.streams[0];
+                    document.getElementById('remote-placeholder').classList.add('hidden');
+                }
+            };
+
+            pc.ondatachannel = e => {
+                const ch = e.channel;
+                if (ch.label === 'ctrl') setupCtrl(ch);
+                if (ch.label === 'chat') setupChat(ch);
+            };
+        }
+
+        function setupCtrl(ch) {
+            ctrlDC = ch;
+            ctrlDC.onopen = () => {
+                setConnectionStatus('established', 'P2P Established', 'p2p');
+                document.getElementById('peer-status').textContent = 'Connected';
+                document.getElementById('peer-status').className = 'text-emerald-400 font-bold mt-0.5';
+                document.getElementById('chat-input').disabled = false;
+                document.getElementById('chat-send-btn').disabled = false;
+                if (!callStartTime) startCallTimer();
+                showToast('P2P Connection Established!', 'success');
+            };
+            ctrlDC.onclose = () => { console.log('[ctrl] closed'); };
+            ctrlDC.onmessage = e => {
+                const msg = JSON.parse(e.data);
+                if (msg.type === 'hangup') { showToast('Peer ended the call', 'info'); hangUp(); }
+            };
+        }
+
+        function setupChat(ch) {
+            chatDC = ch;
+            chatDC.onopen = () => { document.getElementById('chat-input').disabled = false; document.getElementById('chat-send-btn').disabled = false; };
+            chatDC.onmessage = e => {
+                let msg;
+                try { msg = JSON.parse(e.data); } catch { return; }
+                if (msg.type === 'chat' && msg.text) {
+                    addChatMessage(msg.text, false);
+                }
+            };
+        }
+
+        function addChatMessage(text, fromMe) {
+            const container = document.getElementById('chat-messages');
+            const empty = document.getElementById('chat-empty');
+            if (empty) empty.remove();
+            const div = document.createElement('div');
+            div.className = `flex ${fromMe ? 'justify-end' : 'justify-start'}`;
+            const bubble = document.createElement('div');
+            bubble.className = `max-w-[80%] px-3 py-2 rounded-xl text-xs font-sans ${
+                fromMe ? 'bg-indigo-600/30 border border-indigo-500/20 text-indigo-100' : 'bg-slate-800/60 border border-slate-700/50 text-slate-200'
+            }`;
+            bubble.textContent = text;
+            div.appendChild(bubble);
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            chatMsgCount++;
+            document.getElementById('msg-count').textContent = chatMsgCount;
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+            if (!chatDC || chatDC.readyState !== 'open') {
+                showToast('Chat not connected', 'error');
+                return;
+            }
+            chatDC.send(JSON.stringify({ type: 'chat', text }));
+            addChatMessage(text, true);
+            input.value = '';
+        }
+
+        function ctrlSend(obj) {
+            if (ctrlDC && ctrlDC.readyState === 'open') ctrlDC.send(JSON.stringify(obj));
+        }
+
+        // ─── WebSocket Signaling ───────────────────────────────────
+        let wsReconnectDelay = 1000;
+        let wsReconnectTimer = null;
+
+        function connectWS() {
+            if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
+            ws = new WebSocket(WS_URL);
+
+            ws.onopen = () => { wsReconnectDelay = 1000; setConnectionStatus('idle', 'Signaling Online', 'success'); };
+            ws.onerror = (e) => { console.warn('WS error', e); };
+            ws.onclose = () => {
+                ws = null;
+                document.getElementById('my-id').textContent = 'RECONNECTING...';
+                setConnectionStatus('warning', `Signal Lost — Retry in ${(wsReconnectDelay / 1000).toFixed(0)}s`, 'warning');
+                wsReconnectTimer = setTimeout(() => { wsReconnectDelay = Math.min(wsReconnectDelay * 2, 30000); connectWS(); }, wsReconnectDelay);
+            };
+            ws.onmessage = async (ev) => {
+                let msg; try { msg = JSON.parse(ev.data); } catch { return; }
+                if (msg.type === 'welcome') {
+                    localId = msg.id;
+                    document.getElementById('my-id').textContent = localId;
+                    setConnectionStatus('idle', 'Signaling Online', 'success');
+                }
+                if (msg.type === 'error') { showToast(`Signaling error: ${msg.reason}`, 'error'); }
+                if (msg.type === 'offer') {
+                    isCaller = false;
+                    targetId = msg.sender;
+                    document.getElementById('target-id').value = targetId;
+                    setUIState(true);
+                    resetPC();
+                    const hasMedia = await getLocalMedia();
+                    initPC();
+                    addLocalTracksToPC();
+                    if (hasMedia) {
+                        ctrlDC = pc.createDataChannel('ctrl', { ordered: true });
+                        setupCtrl(ctrlDC);
+                        chatDC = pc.createDataChannel('chat', { ordered: true });
+                        setupChat(chatDC);
+                    }
+                    await pc.setRemoteDescription(new RTCSessionDescription(msg.data));
+                    srdDone = true; await drainIce();
+                    const ans = await pc.createAnswer();
+                    await pc.setLocalDescription(ans);
+                    wsSend({ target: targetId, type: 'answer', data: ans });
+                }
+                if (msg.type === 'answer') {
+                    if (!pc) return;
+                    await pc.setRemoteDescription(new RTCSessionDescription(msg.data));
+                    srdDone = true; await drainIce();
+                }
+                if (msg.type === 'candidate') {
+                    if (srdDone && pc) {
+                        try { await pc.addIceCandidate(new RTCIceCandidate(msg.data)); }
+                        catch (e) { console.warn('ICE add', e); }
+                    } else {
+                        iceBuf.push(msg.data);
+                    }
+                }
+            };
+        }
+
+        function wsSend(obj) {
+            if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(obj));
+        }
+
+        async function drainIce() {
+            for (const c of iceBuf) { try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch { } }
+            iceBuf = [];
+        }
+
+        // ─── Connect Button ────────────────────────────────────────
+        document.getElementById('connect-btn').onclick = async () => {
+            if (pc) {
+                ctrlSend({ type: 'hangup' });
+                hangUp();
+                return;
+            }
+            targetId = document.getElementById('target-id').value.toUpperCase().trim();
+            if (targetId.length !== 5) { showToast('Enter a valid 5-char peer ID.', 'error'); return; }
+            isCaller = true;
+            resetPC();
+            const hasMedia = await getLocalMedia();
+            initPC();
+            if (hasMedia) {
+                addLocalTracksToPC();
+                ctrlDC = pc.createDataChannel('ctrl', { ordered: true });
+                setupCtrl(ctrlDC);
+                chatDC = pc.createDataChannel('chat', { ordered: true });
+                setupChat(chatDC);
+            }
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            wsSend({ target: targetId, type: 'offer', data: offer });
+            setConnectionStatus('connecting', 'Connecting to Peer...', 'warning');
+            setUIState(true);
+        };
+
+        // ─── Call Control Buttons ──────────────────────────────────
+        document.getElementById('toggle-audio-btn').onclick = toggleAudio;
+        document.getElementById('toggle-video-btn').onclick = toggleVideo;
+        document.getElementById('toggle-screen-btn').onclick = toggleScreenShare;
+        document.getElementById('hangup-btn').onclick = () => { ctrlSend({ type: 'hangup' }); hangUp(); };
+
+        // ─── Chat Input ────────────────────────────────────────────
+        document.getElementById('chat-send-btn').onclick = sendChatMessage;
+        document.getElementById('chat-input').onkeydown = (e) => { if (e.key === 'Enter') sendChatMessage(); };
+
+        // ─── Copy Device ID ────────────────────────────────────────
+        document.getElementById('copy-btn').onclick = () => {
+            if (localId && localId !== 'Disconnected' && localId !== 'CONNECTING...') {
+                navigator.clipboard.writeText(localId)
+                    .then(() => showToast('Device ID copied!', 'success'))
+                    .catch(() => showToast('Failed to copy', 'error'));
+            }
+        };
+
+        // ─── Boot ──────────────────────────────────────────────────
+        connectWS();
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && (!ws || ws.readyState === WebSocket.CLOSED)) {
+                clearTimeout(wsReconnectTimer);
+                wsReconnectDelay = 1000;
+                connectWS();
+            }
+        });
+    </script>
+</body>
+
+</html>
+

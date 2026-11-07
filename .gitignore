@@ -1,0 +1,15 @@
+# backend binary
+/p2p-signal
+
+# frontend
+UI/node_modules/
+UI/dist/
+UI/.astro/
+UI/.wrangler/
+.env
+.env.*
+
+# local tooling
+.commandcode/
+.DS_Store
+.idea/

@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "aetherdrop",
+  "account_id": "2fff71b39e84b0e09ab12a300f75ba73",
+  "compatibility_date": "2026-11-01",
+  // Static site only: Astro builds to dist/, Workers serves it as assets.
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "auto-trailing-slash"
+  }
+}

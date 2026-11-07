@@ -1,0 +1,75 @@
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
+@import "tailwindcss";
+
+/*
+ * AetherDrop — a radio operator's bench at night.
+ * Graphite surfaces, one amber dial-lamp accent, call-sign keys.
+ */
+@theme {
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, monospace;
+
+  --color-deep: #0f0f10;
+  --color-page: #141415;
+  --color-card: #19191b;
+  --color-raised: #232325;
+  --color-hover: #2a2a2d;
+
+  --color-fg: #ededed;
+  --color-fg-2: #a1a1a6;
+  --color-fg-3: #85858b;
+  --color-line: rgb(237 237 237 / 0.08);
+  --color-line-2: rgb(237 237 237 / 0.14);
+
+  --color-shard: #84848a;
+  --color-parity: #4c4c52;
+
+  --color-lamp: #e8a33d;
+  --color-lamp-ink: #1a1206;
+  --color-ok: #4cc38a;
+  --color-bad: #e5484d;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-enter: enter 360ms var(--ease-out) both;
+  @keyframes enter {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-page text-fg font-sans antialiased;
+    font-feature-settings: "ss01";
+  }
+  ::selection {
+    background: rgb(232 163 61 / 0.3);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-lamp);
+    outline-offset: 2px;
+  }
+  input:focus-visible {
+    outline: none;
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}
