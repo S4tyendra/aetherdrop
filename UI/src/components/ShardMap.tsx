@@ -10,6 +10,7 @@ const COLOR = {
   data: "#84848a",
   parity: "#4c4c52",
   rebuilt: "#e8a33d",
+  held: "#2c5a45",
 };
 
 const ROW_GAP = 1;
@@ -36,7 +37,20 @@ function cellY(row: number, c: number) {
   return row < K ? row * (c + ROW_GAP) : K * (c + ROW_GAP) - ROW_GAP + GROUP_GAP + (row - K) * (c + ROW_GAP);
 }
 
-export function ShardMap({ cells, blocks, rev, kind }: { cells: Uint8Array; blocks: number; rev: number; kind: "tx" | "rx" }) {
+export function ShardMap({
+  cells,
+  blocks,
+  rev,
+  kind,
+  held = false,
+}: {
+  cells: Uint8Array;
+  blocks: number;
+  rev: number;
+  kind: "tx" | "rx";
+  /** Some blocks were already on the receiver when this transfer started. */
+  held?: boolean;
+}) {
   const wrap = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const [width, setWidth] = useState(0);
@@ -69,7 +83,7 @@ export function ShardMap({ cells, blocks, rev, kind }: { cells: Uint8Array; bloc
       for (let s = 0; s < N; s++) {
         const v = cells[b * N + s];
         ctx.fillStyle =
-          v === CELL.REBUILT ? COLOR.rebuilt : v === CELL.GOT ? (s < K ? COLOR.data : COLOR.parity) : COLOR.empty;
+          v === CELL.HELD ? COLOR.held : v === CELL.REBUILT ? COLOR.rebuilt : v === CELL.GOT ? (s < K ? COLOR.data : COLOR.parity) : COLOR.empty;
         ctx.fillRect(x, y0 + cellY(s, c), c, c);
       }
       if (hover === b) {
@@ -98,7 +112,10 @@ export function ShardMap({ cells, blocks, rev, kind }: { cells: Uint8Array; bloc
       if (v === CELL.GOT) got++;
       if (v === CELL.REBUILT) rebuilt++;
     }
-    readout = `Block ${hover} · ${got} of ${N} ${kind === "tx" ? "sent" : "received"}${rebuilt ? ` · ${rebuilt} rebuilt` : ""}`;
+    readout =
+      cells[hover * N] === CELL.HELD
+        ? `Block ${hover} · ${kind === "tx" ? "already on the other device" : "already on this device"}`
+        : `Block ${hover} · ${got} of ${N} ${kind === "tx" ? "sent" : "received"}${rebuilt ? ` · ${rebuilt} rebuilt` : ""}`;
   }
 
   return (
@@ -109,6 +126,7 @@ export function ShardMap({ cells, blocks, rev, kind }: { cells: Uint8Array; bloc
           <Legend color={COLOR.data} label="Data" />
           <Legend color={COLOR.parity} label="Parity" />
           {kind === "rx" && <Legend color={COLOR.rebuilt} label="Rebuilt" />}
+          {held && <Legend color={COLOR.held} label="Already there" />}
           <Legend color={COLOR.empty} label="Pending" />
         </ul>
       </div>

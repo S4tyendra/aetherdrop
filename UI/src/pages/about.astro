@@ -10,7 +10,7 @@ import { SITE } from "../components/Brand.tsx";
   lede="Tincan gives two people a private room in the browser: a video call, screen sharing with sound, chat, file transfer and a few games, all on one direct connection between your two devices."
   crumb="About"
   type="AboutPage"
-  updated="2026-11-07"
+  updated="2026-11-08"
   image="/og.png"
 >
   <h2 id="name">Why the name</h2>
@@ -40,7 +40,7 @@ import { SITE } from "../components/Brand.tsx";
       crisp and a <em>smooth motion</em> mode keeps video fluid.
     </li>
     <li><strong>Chat</strong> that lives only in the two open tabs.</li>
-    <li><strong>File transfer</strong> of any size, with a live map of every piece as it arrives.</li>
+    <li><strong>File transfer</strong> of any size, with a live map of every piece as it arrives. Interrupted transfers resume.</li>
     <li><strong>Games</strong>: Tic-tac-toe, Three pieces, Connect four and Quoridor.</li>
     <li><strong>An expand button</strong> on each part of the room, so you can focus on one thing while the other person is told what you opened.</li>
   </ul>
@@ -70,6 +70,12 @@ import { SITE } from "../components/Brand.tsx";
     using Cauchy Reed-Solomon coding. Any 16 of the 20 pieces rebuild the block, so a few lost packets cost nothing and the
     transfer doesn't stall waiting for resends. Pieces flow over three parallel channels, and anything still missing at the end
     is requested again.
+  </p>
+  <p>
+    Every block also carries a SHA-256 fingerprint, and the file's identity is the fingerprint of all of them together. The
+    receiving browser checks each block and keeps it on the device as it arrives. If the connection drops, the transfer
+    continues when you reconnect. If you send the same file again later, in any room, the two browsers compare notes and only
+    the missing blocks travel.
   </p>
 
   <h2 id="security">Encryption</h2>

@@ -7,7 +7,7 @@ const PAGES = [
   { path: "/privacy/", changefreq: "yearly", priority: "0.4" },
   { path: "/terms/", changefreq: "yearly", priority: "0.4" },
 ];
-const LASTMOD = "2026-11-07";
+const LASTMOD = "2026-11-08";
 
 export const GET: APIRoute = ({ site }) => {
   const urls = PAGES.map(

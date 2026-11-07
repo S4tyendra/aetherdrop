@@ -253,7 +253,7 @@ async function startPeer(asOfferer: boolean) {
   setupCtrl(ctrlDC);
   setupChat(chatDC);
   attachGame(gameDC);
-  attachFiles(filesDC, wrk);
+  attachFiles(filesDC, wrk, () => peerName());
 
   conn.onicecandidate = (e) => e.candidate && signal({ candidate: e.candidate });
   conn.oniceconnectionstatechange = () => onIce(conn);

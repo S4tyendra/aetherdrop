@@ -8,7 +8,7 @@ export const FEATURES = [
   "Peer-to-peer video and voice calls",
   "Screen sharing with tab or system audio",
   "Text chat",
-  "File transfer of any size, browser to browser",
+  "Resumable file transfer of any size, browser to browser",
   "Tic-tac-toe, Three pieces, Connect four and Quoridor",
   "PIN-protected rooms",
   "No account and no install",
@@ -34,6 +34,10 @@ export const FAQ: { q: string; a: string }[] = [
   {
     q: "How big can a file be?",
     a: "There is no set limit. Files stream from one browser to the other in 512 KB blocks with Reed-Solomon error correction, so a few lost packets don't force a resend. Very large files are limited by the receiving device's memory.",
+  },
+  {
+    q: "What if the connection drops halfway through a file?",
+    a: "Nothing is lost. Each piece is checked and kept on the receiving device as it arrives. When you reconnect the transfer continues by itself, and if you send the same file again later, even in a different room, only the missing part travels.",
   },
   {
     q: "Does screen sharing include sound?",

@@ -9,7 +9,7 @@ import { SITE } from "../components/Brand.tsx";
   heading="Privacy policy"
   lede="Tincan is built so that the things you share never reach us. This page lists everything our server does handle, why, and for how long."
   crumb="Privacy"
-  updated="2026-11-07"
+  updated="2026-11-08"
 >
   <h2 id="summary">In short</h2>
   <ul>
@@ -85,11 +85,16 @@ import { SITE } from "../components/Brand.tsx";
   <ul>
     <li><code>tincan:nick</code> in local storage holds the name you chose, so you don't have to type it again.</li>
     <li>
+      Files you receive are kept in this browser's storage (IndexedDB), block by block, so an interrupted transfer can pick up
+      where it stopped, in the same room or another one. They stay on your device. Inside a room, <em>Saved on this device</em>
+      lists them and lets you delete one or all.
+    </li>
+    <li>
       When you join a room with a PIN from the home page, the PIN is held in session storage just long enough to hand it to the room
       page, then removed.
     </li>
   </ul>
-  <p>Tincan sets no cookies. Clearing this site's data in your browser removes your saved name.</p>
+  <p>Tincan sets no cookies. Clearing this site's data in your browser removes your saved name and any stored files.</p>
 
   <h2 id="hosting">Hosting</h2>
   <p>

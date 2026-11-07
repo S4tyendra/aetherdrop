@@ -1,18 +1,22 @@
-import { ArrowDown, ArrowUp, Link2Off, Upload } from "lucide-react";
-import { useRef, useState, type ReactNode } from "react";
-import { N_WORKERS, files, sendFile, type HistoryEntry, type XferView } from "../lib/files";
+import { ArrowDown, ArrowUp, Download, HardDrive, Link2Off, Trash2, Upload, X } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { N_WORKERS, cancelSend, dismissReceive, files, sendFile, type HistoryEntry, type XferView } from "../lib/files";
 import { fmtBytes, fmtEta, fmtPair } from "../lib/format";
+import { peerName, room } from "../lib/room";
+import { refreshStash, removeAll, removeFile, saveFile, stash, type StashItem } from "../lib/stash";
 import { useStore } from "../lib/store";
 import { ShardMap } from "./ShardMap";
-import { Card, Dot, ICON, Stat, cx } from "./ui";
+import { Button, Card, Dot, ICON, Stat, cx } from "./ui";
 
 export function FilesPanel({ expand }: { expand?: ReactNode }) {
   const s = useStore(files);
+  useEffect(() => void refreshStash(), []);
   return (
     <>
       <Dropzone enabled={s.ready} expand={expand} />
       {s.tx && <Transfer v={s.tx} streams={s.txStreams} />}
       {s.rx && <Transfer v={s.rx} streams={s.rxStreams} />}
+      <Stash active={s.rxFileId} />
       {s.history.length > 0 && <History items={s.history} />}
     </>
   );
@@ -77,30 +81,67 @@ function Dropzone({ enabled, expand }: { enabled: boolean; expand?: ReactNode })
   );
 }
 
+function phaseLabel(v: XferView, name: string) {
+  const tx = v.kind === "tx";
+  switch (v.phase) {
+    case "preparing":
+      return `Checking the file, ${Math.round(v.prep * 100)}%`;
+    case "waiting":
+      return `Asking ${name} what they already have`;
+    case "paused":
+      return tx ? `Paused, continues when ${name} is back` : `Paused, ${v.pct}% kept on this device`;
+    case "done":
+      return tx ? "Sent" : "Received";
+    default:
+      return tx ? "Sending" : "Receiving";
+  }
+}
+
 function Transfer({ v, streams }: { v: XferView; streams: (string | null)[] }) {
   const tx = v.kind === "tx";
   const Dir = tx ? ArrowUp : ArrowDown;
+  const live = useStore(room).peer;
+  const name = live ? peerName(live) : v.peer;
+  const pct = v.phase === "preparing" ? Math.round(v.prep * 100) : v.pct;
+  const canStop = tx ? !v.done : v.phase === "paused" || v.done;
   return (
     <Card className="animate-enter">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2 text-sm text-fg-2">
-            <Dir {...ICON} className="text-fg-3" />
-            {v.done ? (tx ? "Sent" : "Received") : tx ? "Sending" : "Receiving"}
+            <Dir {...ICON} className="shrink-0 text-fg-3" />
+            <span className="truncate">{phaseLabel(v, name)}</span>
           </div>
           <h3 className="mt-1 truncate text-base font-medium text-fg" title={v.fileName}>
             {v.fileName}
           </h3>
         </div>
-        <span className="font-mono text-3xl leading-none text-fg tabular">{v.pct}%</span>
+        <div className="flex shrink-0 items-start gap-2">
+          <span className="font-mono text-3xl leading-none text-fg tabular">{pct}%</span>
+          {canStop && (
+            <button
+              onClick={tx ? cancelSend : dismissReceive}
+              aria-label={tx ? `Stop sending ${v.fileName}` : "Hide this transfer"}
+              title={tx ? "Stop sending" : "Hide"}
+              className="-mt-1 flex size-8 items-center justify-center rounded-lg text-fg-3 transition-colors duration-150 hover:bg-raised hover:text-fg"
+            >
+              <X {...ICON} />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="mt-4 h-1 overflow-hidden rounded-full bg-raised">
         <div
-          className="h-full origin-left rounded-full bg-fg transition-transform duration-150 ease-out"
-          style={{ transform: `scaleX(${v.pct / 100})` }}
+          className={cx("h-full origin-left rounded-full transition-transform duration-150 ease-out", v.phase === "preparing" ? "bg-fg-3" : "bg-fg")}
+          style={{ transform: `scaleX(${pct / 100})` }}
         />
       </div>
+      {v.heldBytes > 0 && (
+        <p className="mt-3 text-xs text-fg-3">
+          Resumed: {fmtBytes(v.heldBytes)} was already {tx ? `with ${name}` : "on this device"}
+        </p>
+      )}
 
       <div
         className={cx(
@@ -116,7 +157,7 @@ function Transfer({ v, streams }: { v: XferView; streams: (string | null)[] }) {
       </div>
 
       <div className="mt-6 border-t border-line pt-5">
-        <ShardMap cells={v.cells} blocks={v.totalBlocks} rev={v.rev} kind={v.kind} />
+        <ShardMap cells={v.cells} blocks={v.totalBlocks} rev={v.rev} kind={v.kind} held={v.heldBytes > 0} />
       </div>
 
       <ul className="mt-5 grid grid-cols-1 gap-x-6 gap-y-1 border-t border-line pt-4 sm:grid-cols-3">
@@ -132,6 +173,104 @@ function Transfer({ v, streams }: { v: XferView; streams: (string | null)[] }) {
         })}
       </ul>
     </Card>
+  );
+}
+
+function ago(ms: number) {
+  const m = Math.floor((Date.now() - ms) / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m} min ago`;
+  const h = Math.floor(m / 60);
+  return h < 24 ? `${h} h ago` : `${Math.floor(h / 24)} d ago`;
+}
+
+/** Files kept on this device: unfinished ones resume when the same file is sent again, in any room. */
+function Stash({ active }: { active: string | null }) {
+  const s = useStore(stash);
+  const [sure, setSure] = useState(false);
+  useEffect(() => {
+    if (!sure) return;
+    const t = setTimeout(() => setSure(false), 3000);
+    return () => clearTimeout(t);
+  }, [sure]);
+  if (!s.supported || s.items.length === 0) return null;
+
+  return (
+    <Card
+      title="Saved on this device"
+      aside={
+        <span className="font-mono text-xs text-fg-3 tabular">
+          {s.items.length} {s.items.length === 1 ? "file" : "files"}
+        </span>
+      }
+    >
+      <p className="-mt-1 text-sm leading-5 text-fg-2">
+        Unfinished files pick up where they stopped when the same file is sent again, in this room or any other
+      </p>
+      <ul className="mt-4">
+        {s.items.map((it) => (
+          <StashRow key={it.fileId} it={it} busy={it.fileId === active} />
+        ))}
+      </ul>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
+        <span className="flex items-center gap-2 text-xs text-fg-3">
+          <HardDrive {...ICON} className="shrink-0" />
+          {s.usage !== null
+            ? `Using ${fmtBytes(s.usage)}${s.quota ? ` of ${fmtBytes(s.quota)} available to this site` : ""}`
+            : "Kept in this browser's storage"}
+        </span>
+        <Button
+          size="sm"
+          variant="danger"
+          disabled={!!active}
+          onClick={() => (sure ? void removeAll().then(() => setSure(false)) : setSure(true))}
+        >
+          {sure ? "Delete all, sure?" : "Delete all"}
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
+function StashRow({ it, busy }: { it: StashItem; busy: boolean }) {
+  const have = it.complete ? it.fileSize : Math.min(it.fileSize, it.stored * 512 * 1024);
+  const pct = it.complete ? 100 : Math.floor((it.stored / Math.max(1, it.totalBlocks)) * 100);
+  return (
+    <li className="flex items-center gap-4 border-t border-line py-3 first:border-t-0">
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span className="truncate text-sm text-fg" title={it.fileName}>
+            {it.fileName}
+          </span>
+          {busy && <Dot tone="ok" />}
+        </div>
+        <div className="mt-2 h-0.5 overflow-hidden rounded-full bg-raised">
+          <div className={cx("h-full origin-left rounded-full", it.complete ? "bg-ok" : "bg-fg-2")} style={{ transform: `scaleX(${pct / 100})` }} />
+        </div>
+        <div className="mt-1.5 truncate font-mono text-xs text-fg-3 tabular">
+          {it.complete ? "Complete" : `${pct}%`} · {fmtPair(have, it.fileSize)} · from {it.from} · {ago(it.updatedAt)}
+        </div>
+      </div>
+      {it.complete && (
+        <button
+          onClick={() => void saveFile(it)}
+          aria-label={`Save ${it.fileName}`}
+          title="Save"
+          className="flex size-8 shrink-0 items-center justify-center rounded-lg text-fg-3 transition-colors duration-150 hover:bg-raised hover:text-fg"
+        >
+          <Download {...ICON} />
+        </button>
+      )}
+      <button
+        onClick={() => void removeFile(it.fileId)}
+        disabled={busy}
+        aria-label={`Delete ${it.fileName} from this device`}
+        title={busy ? "Receiving now" : "Delete"}
+        className="flex size-8 shrink-0 items-center justify-center rounded-lg text-fg-3 transition-colors duration-150 hover:bg-raised hover:text-bad disabled:pointer-events-none disabled:opacity-40"
+      >
+        <Trash2 {...ICON} />
+      </button>
+    </li>
   );
 }
 
@@ -171,8 +310,8 @@ function History({ items }: { items: HistoryEntry[] }) {
                     {h.dir === "sent" ? "Sent" : "Received"}
                   </span>
                 </td>
-                <td className="hidden text-right font-mono text-fg-2 tabular @xl:table-cell">{h.ok ? `${fmtBytes(h.speed)}/s` : "–"}</td>
-                <td className="hidden text-right font-mono text-fg-2 tabular @xl:table-cell">{h.ok ? `${h.duration.toFixed(1)}s` : "–"}</td>
+                <td className="hidden text-right font-mono text-fg-2 tabular @xl:table-cell">{h.ok && h.speed > 0 ? `${fmtBytes(h.speed)}/s` : "–"}</td>
+                <td className="hidden text-right font-mono text-fg-2 tabular @xl:table-cell">{h.ok && h.speed > 0 ? `${h.duration.toFixed(1)}s` : "–"}</td>
                 <td className="hidden pl-6 @lg:table-cell">
                   <span className="inline-flex items-center gap-2 text-fg-2">
                     <Dot tone={h.ok ? "ok" : "bad"} />
