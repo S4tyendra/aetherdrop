@@ -20,6 +20,7 @@ import {
   type GameState,
   type Wall,
 } from "../lib/games";
+import { createPortal } from "react-dom";
 import { peerName, room } from "../lib/room";
 import { useStore } from "../lib/store";
 import { Button, Card, cx } from "./ui";
@@ -376,19 +377,24 @@ function SlideBoard({
         })}
       </div>
       {mineX ? tray(false) : tray(true)}
-      {drag && Math.hypot(drag.x - drag.sx, drag.y - drag.sy) > 6 && (
-        <div
-          className="pointer-events-none fixed z-50 flex items-center justify-center rounded-md border border-line-2 bg-raised text-fg shadow-[0_12px_32px_rgba(0,0,0,0.5)]"
-          style={{
-            width: drag.size,
-            height: drag.size,
-            left: drag.x - drag.size / 2,
-            top: drag.y - drag.size / 2,
-          }}
-        >
-          <Mark x={mineX} className="size-[60%]" />
-        </div>
-      )}
+      {/* Portalled to <body>: a transformed ancestor (the enter animation) would
+          otherwise become the containing block for position: fixed and offset it. */}
+      {drag &&
+        Math.hypot(drag.x - drag.sx, drag.y - drag.sy) > 6 &&
+        createPortal(
+          <div
+            className="pointer-events-none fixed z-50 flex items-center justify-center rounded-md border border-line-2 bg-raised text-fg shadow-[0_12px_32px_rgba(0,0,0,0.5)]"
+            style={{
+              width: drag.size,
+              height: drag.size,
+              left: drag.x - drag.size / 2,
+              top: drag.y - drag.size / 2,
+            }}
+          >
+            <Mark x={mineX} className="size-[60%]" />
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
